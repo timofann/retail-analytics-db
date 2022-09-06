@@ -1,61 +1,27 @@
-## Периоды
+## Periods
 
-#### Представление Периоды
+#### Periods View
 
-| **Поле**                            | **Название поля в системе** | **Формат / возможные значения**  | **Описание**                                                                                                                                                                                                 |
-|:-----------------------------------:|:---------------------------:|:--------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| Идентификатор клиента               | Customer_ID                 | ---                              | ---                                                                                                                                                                                                          |
-| Идентификатор группы SKU            | Group_ID                    | ---                              | Идентификатор группы родственных товаров, к которой относится товар (например, одинаковые йогурты одного производителя и объема, но разных вкусов). Указывается один идентификатор для всех товаров в группе |
-| Дата первой покупки группы          | First_Group_Purchase_Date   | дд.мм.гггг                       | ---                                                                                                                                                                                                          |
-| Дата последней покупки группы       | Last_Group_Purchase_Date    | дд.мм.гггг                       | ---                                                                                                                                                                                                          |
-| Количество транзакций с группой     | Group_Purchase              | Арабская цифра, десятичная дробь | ---                                                                                                                                                                                                          |
-| Интенсивность покупок группы        | Group_Frequency             | Арабская цифра, десятичная дробь | ---                                                                                                                                                                                                          |
-| Минимальный размер скидки по группе | Group_Min_Discount          | Арабская цифра, десятичная дробь | ---                                                                                                                                                                                                          |
+| **Field**                                     | **System field name**       | **Format / possible values**     | **Description**                                                                                                                                                                                                 |
+|:---------------------------------------------:|:---------------------------:|:--------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Customer ID                                   | Customer_ID                 | ---                              | ---                                                                                                                                                                                                          |
+| SKU group                                     | Group_ID                    | ---                              | The ID of the group of related products to which the product belongs (for example, same type of yogurt of the same manufacturer and volume, but different flavors). One identifier is specified for all products in the group |
+| Date of first purchase of the group           | First_Group_Purchase_Date   | yyyy-mm-dd hh:mm:ss.0000000      | ---                                                                                                                                                                                                          |
+| Date of last purchase of the group            | Last_Group_Purchase_Date    | yyyy-mm-dd hh:mm:ss.0000000      | ---                                                                                                                                                                                                          |
+| Number of transactions with the group         | Group_Purchase              | Arabic numeral, decimal          | ---                                                                                                                                                                                                          |
+| Intensity of group purchases                  | Group_Frequency             | Arabic numeral, decimal          | ---                                                                                                                                                                                                          |
+| Minimum group discount                        | Group_Min_Discount          | Arabic numeral, decimal | ---                                                                                                                                                                                                          |
 
-1. **Определение даты первой покупки группы клиентом.** Дата первой
-    покупки группы клиентом определяется на основе данных, содержащихся
-    в поле `Transaction_Date` таблицы [История покупок](../README.md#представление-история-покупок). Из всей
-    совокупности записей, в рамках которых идентификаторы клиента и
-    группы равны идентификаторам клиента и группы анализируемой строки
-    таблицы Периоды, выбирается минимальное значение по полю
-    `Transaction_Date` таблицы [История покупок](../README.md#представление-история-покупок). Результат
-    сохраняется в поле `First_Group_Purchase_Date` таблицы Периоды.
 
-2. **Определение даты последней покупки группы клиентом.** Дата
-    последней покупки группы клиентом определяется на основе данных,
-    содержащихся в поле `Transaction_Date` таблицы История
-    покупок. Из всей совокупности записей, в рамках которых
-    идентификаторы клиента и группы равны идентификаторам клиента и
-    группы анализируемой строки таблицы Периоды, выбирается
-    максимальное значение по полю `Transaction_Date` таблицы История
-    покупок. Результат сохраняется в поле
-    `Last_Group_Purchase_Date` таблицы Периоды.
+1. **Determination of the date of the first group purchase by the customer.** The date of the first group purchase by the customer is determined using the data contained in the `Transaction_DateTime` field of the [Purchase history table](../README.md#purchase-history-view). The minimum value in the `Transaction_DateTime` field of the [Purchase History table](../README.md#purchase-history-view) is selected from all records, where customer and group IDs are equal to customer and group IDs of the analyzed row of the Periods table. The result is saved in the  `First_Group_Purchase_Date` field of the Periods table .
 
-3. **Определение количества транзакций с анализируемой группой.**
-    Определяется количество транзакций клиента в рамках анализируемого
-    периода, в которых присутствует анализируемая группа. Для этого
-    используются данные, содержащиеся в полях `Customer_ID`,
-    `Transaction_ID` (берутся уникальные значения по полю
-    `Transaction_ID`) и Group_ID (берется идентификатор анализируемой
-    группы) таблицы [История покупок](../README.md#представление-история-покупок). Значения в полях
-    `Customer_ID` и `Group_ID` в таблице [История покупок](../README.md#представление-история-покупок) должны
-    соответствовать значениям в аналогичных полях таблицы Периоды.
-    Результат сохраняется в поле `Group_Purchase` таблицы Периоды.
+2. **Determination of the date of the last group purchase by the customer.** The date of the last group purchase by the customer is determined using the data contained in the `Transaction_DateTime` field of the Purchase History table. The maximum value in the `Transaction_DateTime` field of the Purchase History table is selected from all records, within which the customer and group IDs are equal to the customer and group IDs of the analyzed row of the Periods table. The result is saved in the `Last_Group_Purchase_Date` field of the Periods table.
 
-4. **Определение интенсивности покупок группы.** Для определения
-    интенсивности покупок группы из даты последней транзакции с группой
-    (значение поля `Last_Group_Purchase_Date` таблицы Периоды)
-    вычитается значение поля (значение поля `First_Group_Purchase_Date`
-    таблицы Периоды), добавляется единица, после чего результат
-    делится на количество транзакций с анализируемой группой (значение
-    поля `Group_Purchase` таблицы Периоды). Результат сохраняется
-    в поле `Group_Frequency` таблицы Периоды.
+3. **Determination of the number of transactions with the analyzed group.** The number of customer transactions within the analyzed period, which includes the analyzed group, is determined using the data contained in fields `Customer_ID`, `Transaction_ID` (unique values in the  `Transaction_ID` field are used) and Group_ID (ID of the analyzed group is used) of the [Purchase history table](../README.md#purchase-history-view). Values of `Customer_ID` and `Group_ID` in the [Purchase history table](../README.md#purchase-history-view) must match the values in the similar fields in the Periods table. The result is saved in the `Group_Purchase` field of the Periods table.
 
-5. **Подсчет минимальной скидки по группе.** Для каждой группы каждой
-    транзакции устанавливается минимальный размер скидки, который был
-    предоставлен в рамках данной транзакции. Для этого предоставленный
-    размер скидки по каждому SKU (значение поля `SKU_Discount` таблицы
-    [Чеки](../README.md#таблица-чеки)) делится на базовую розничную стоимость данного SKU
-    (значение поля `SKU_Summ` таблицы [Чеки](../README.md#таблица-чеки)). Результат сохраняется
-    в поле `Group_Min_Discount` таблицы Периоды. В случае
-    отсутствия скидки по всем SKU группы указывается значение 0.
+4. **Determination of the group purchases intensity.** To determine the group purchases intensity, subtract the value of the `First_Group_Purchase_Date` field of the Periods table from the date of the last transaction with the group (value of the  `Last_Group_Purchase_Date` field of the Periods table), add one, and then divide the result by the number of transactions with the analyzed group (value of the `Group_Purchase` field of the Periods table). The result is saved in the `Group_Frequency` field of the Periods table.
+
+
+5. **Calculation of the minimum discount for a group.** The minimum discount that was provided within this transaction is set for each group of each transaction. This is done by dividing the given discount amount for each SKU (value of the `SKU_Discount` field in the  [Checks](../README.md#checks-table) table) by the base retail value of this SKU (value of the `SKU_Summ` field in the [Checks](../README.md#checks-table) table). The result is saved in the `Group_Min_Discount` field of the Periods table. If there is no discount on all SKUs of the group, the value 0 is specified.
+
+

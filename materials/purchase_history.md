@@ -1,55 +1,46 @@
-## История покупок
+## Purchase history
 
-#### Представление История покупок
+#### Purchase history view
 
-| **Поле**                        | **Название поля в системе** | **Формат / возможные значения**  | **Описание**                                                                                                                                                                                                 |
-|:-------------------------------:|:---------------------------:|:--------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| Идентификатор клиента           | Customer_ID                 | ---                              | ---                                                                                                                                                                                                          |
-| Идентификатор транзакции        | Transaction_ID              | ---                              | ---                                                                                                                                                                                                          |
-| Дата транзакции                 | Transaction_Date            | дд.мм.гггг                       | Дата совершения транзакции                                                                                                                                                                                   |
-| Группа SKU                      | Group_ID                    | ---                              | Идентификатор группы родственных товаров, к которой относится товар (например, одинаковые йогурты одного производителя и объема, но разных вкусов). Указывается один идентификатор для всех товаров в группе |
-| Себестоимость                   | Group_Cost                  | Арабская цифра, десятичная дробь | ---                                                                                                                                                                                                          |
-| Базовая розничная стоимость     | Group_Summ                  | Арабская цифра, десятичная дробь | ---                                                                                                                                                                                                          |
-| Фактически оплаченная стоимость | Group_Summ_Paid             | Арабская цифра, десятичная дробь | ---                                                                                                                                                                                                          |
+| **Field**                       | **System field name**       | **Format / possible values**     | **Description**                                                       |
+|:-------------------------------:|:---------------------------:|:--------------------------------:|:--------------------------------------------------------------------:|
+| Customer ID                     | Customer_ID                 | ---                              | ---                                                                   |
+| Transaction ID                  | Transaction_ID              | ---                              | ---                                                                   |
+| Transaction date                | Transaction_DateTime        | dd.mm.yyyyy hh:mm:ss.0000000     | The date when the transaction was made                                                                                                                                                                                             |
+| SKU group                       | Group_ID                    | ---                              | The ID of the group of related products to which the product belongs (for example, same type of yogurt of the same manufacturer and volume, but different flavors). One identifier is specified for all products in the group  |
+| Prime cost                      | Group_Cost                  | Arabic numeral, decimal | ---                                                                                                                                                                                                                                         |
+| Base retail price               | Group_Summ                  | Arabic numeral, decimal | ---                                                                                                                                                                                                                                         |
+| Actual cost paid                | Group_Summ_Paid             | Arabic numeral, decimal | ---                                                                                                                                                                                                                                         |
 
-1.  **Определение транзакций клиента.** Для каждого клиента формируется
-    список уникальных транзакций по всем его картам. Для этого
-    используются данные, содержащиеся в поле `Transaction_ID` таблицы
-    [Транзакции](../README.md#таблица-транзакции). Связка с идентификатором клиента (`Customer_ID`
-    таблицы [Персональные данные](../README.md#таблица-персональные-данные)) осуществляется через
-    идентификаторы всех карт клиента (поле `Customer_Card_ID` таблиц
-    [Персональные данные](../README.md#таблица-персональные-данные) и [Транзакции](../README.md#таблица-транзакции)). Результат сохраняется
-    в поле `Transaction_ID` таблицы История покупок. В таблице
-    сохраняются уникальные значения Идентификатор клиента
-    (`Customer_ID`) – Идентификатор транзакции (`Transaction_ID`).
+1. **Determination of customer transactions .**
+   A list of unique transactions via all cards is formed for each customer. Use data contained in the `Transaction_ID`
+   field of the [Transactions](../README.md#transactions-table) table. Binding with the customer
+   identifier (`Customer_ID` of the [Personal data table](../README.md#personal-data-table)) is performed through
+   identifiers of all customer cards (`Customer_Card_ID` field of [Cards] (../README.md#cards-table)
+   and [Transactions] (../README.md#transactions-table)). The result is saved in the `Transaction_ID` field of the
+   Purchase History table. Unique values of Customer ID (`Customer_ID`) - Transaction ID (`Transaction_ID`) are saved in
+   the table.
 
-2.  **Определение дат совершения транзакций.** Для каждой транзакции
-    указывается ее дата. Для определения даты совершения транзакции
-    используются данные, содержащиеся в поле `Transaction_Date` таблицы
-    [Транзакции](../README.md#таблица-транзакции), идентификация осуществляется по полю
-    `Transaction_ID` таблиц История покупок и [Транзакции](../README.md#таблица-транзакции).
-    Результат сохраняется в поле `Transaction_Date` таблицы История покупок.
+2. **Determination of transaction dates.**
+   The date of each transaction is specified. Use data contained in the `Transaction_DateTime` field of
+   the [Transactions table](../README.md#transactions-table) to determine the date of transaction. Identification is
+   made by the `Transaction_ID` field of Purchase History and [Transactions](../README.md#transactions-table) tables.
+   The result is saved in the `Transaction_DateTime` field of the Purchase History table.
 
-3.  **Определение списка SKU.** Для каждой транзакции указывается список
-    SKU, которые были приобретены клиентом в рамках конкретной
-    транзакции. Для этого используются данные, содержащиеся в поле
-    `SKU_ID` таблицы [Чеки](../README.md#таблица-чеки). Сопоставление осуществляется на
-    основании данных, содержащихся в полях `Transaction_ID` таблиц История покупок и [Чеки](../README.md#таблица-чеки).
+3. **SKU list determination.** A list of SKUs that were purchased by the customer within a particular transaction is
+   specified for each transaction. Use data contained in the `SKU_ID` field of
+   the [Checks table](../README.md#checks-table). The comparison is made using the data contained in
+   the `Transaction_ID` field of Purchase History and [Checks](../README.md#checks-table) tables.
 
-4.  **Дедубликация списка SKU.** Список SKU дедублицируется
-    индивидуально для каждой транзакции. Для каждой транзакции
-    формируется список уникальных SKU.
+4. **SKU list deduplication.** SKU list is deduplicated individually for each transaction. A list of unique SKUs is
+   formed for each transaction.
 
-5. **Определение списка групп.** Для каждого SKU на основании данных из
-    товарной матрицы указывается его группа. Для этого используются
-    данные, содержащиеся в поле `Group_ID` таблицы Товарная
-    матрица, сопоставление осуществляется по полю `SKU_ID` таблиц История покупок и [Товарная матрица](../README.md#таблица-товарная-матрица).
+5. **Group list determination**  A group is specified for each SKU using data from the product grid. Use data contained
+   in the `Group_ID` field of the Product grid table. The comparison is made using the `SKU_ID` field of the Purchase
+   History and [Product grid](../README.md#product-grid-table) tables.
 
-6. **Дедубликация списка групп.** Список групп дедублицируется
-    индивидуально для каждой транзакции. Итоговый результат сохраняется
-    в поле `Group_ID` таблицы История покупок. В таблице должны
-    содержаться уникальные значения, сформированные из совокупности
-    данных Идентификатор клиента (`Customer_ID`) – Идентификатор
-    транзакции (`Transaction_ID`) – Идентификатор группы (`Group_ID`).
-    При этом дата транзакции автоматически распространяется на все
-    группы, которые были приобретены в рамках данной транзакции.
+6. **Group list deduplication.**  A list of groups is deduplicated individually for each transaction. The final result
+   is saved in the `Group_ID` field of the Purchase History table. The table must contain unique values formed from the
+   aggregate of Customer ID (`Customer_ID`) – Transaction ID (`Transaction_ID`) – Group ID (`Group_ID`). The transaction
+   date automatically applies to all groups that were purchased within this transaction.
+
