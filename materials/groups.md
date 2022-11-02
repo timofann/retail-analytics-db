@@ -76,7 +76,7 @@ Calculation of affinity
 Calculation of the churn index from a group
 
 8. **Calculation of how long ago the group was purchased.** Subtract the last transaction date of a customer, that
-   included the analyzed group, from the current date. To determine the last date of purchase of the group by the
+   included the analyzed group, from the [date of analysis formation](../README.md#date-of-analysis-formation-table). To determine the last date of purchase of the group by the
    customer the maximum value of the `Transaction_DateTime` field of
    the [Purchase History table](../README.md#purchase-history-view) is selected for records where values of the
    fields `Customer_ID` and `Group_ID` correspond to values of similar fields of the Group table.
@@ -115,7 +115,7 @@ Calculation of the actual group margin for a customer
     But users should be able to make individual settings and choose the actual margin calculation method - by period or
     by number of transactions.
 
-- If the method of margin calculation by period is selected, the user specifies for how many days from the current date
+- If the method of margin calculation by period is selected, the user specifies for how many days from the [date of analysis formation](../README.md#date-of-analysis-formation-table)
   in reverse chronological order it is necessary to calculate the margin. It takes all transactions, which contain the
   analyzed group, made by the user during the specified period. The data contained in the `Transaction_DateTime` field
   of the [Purchase history table](../README.md#purchase-history-view) is used for calculations.

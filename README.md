@@ -66,7 +66,7 @@ A more detailed description for filling in these views will be given below.
 | Name                        | Customer_Name               | Cyrillic, the first letter is capitalized, the rest are upper case, dashes and spaces are allowed | ---                                                                                                       |
 | Surname                     | Customer_Surname            | Cyrillic, the first letter is capitalized, the rest are upper case, dashes and spaces are allowed | ---                                                                                                       |
 | Customer E-mail             | Customer_Primary_Email      | E-mail format                                                                    | ---                                                                                                                             |
-| Customer phone number       | Customer_Primary_Phone      | 10 Arabic numerals                                                                 | ---                                                                                                       |
+| Customer phone number       | Customer_Primary_Phone      | +7 and 10 Arabic numerals                                                                 | ---                                                                                                       |
 
 #### Cards Table
 
@@ -79,11 +79,10 @@ A more detailed description for filling in these views will be given below.
 
 | **Field**                | **System field name**       | **Format / possible values**    | **Description**                                               |
 |:------------------------:|:---------------------------:|:-------------------------------:|:-------------------------------------------------------------------------:|
-| Card_ID                  | Customer_Card_ID            | ---                             | ---                                                                        |
 | Transaction ID           | Transaction_ID              | ---                             | Unique value                                                               |
 | Card ID                  | Customer_Card_ID            | ---                             | ---                                                                        |
 | Transaction sum          | Transaction_Summ            | Arabic numeral                  | Transaction sum in rubles(full purchase price excluding discounts) |
-| Transaction date         | Transaction_Date            | yyyy.mm.dd hh:mm:ss             | Date and time when the transaction was made                                |
+| Transaction date         | Transaction_DateTime        | dd.mm.yyyy hh:mm:ss             | Date and time when the transaction was made                                |
 | Store                    | Transaction_Store_ID        | Store ID                        | The store where the transaction was made                                   |
 
 #### Checks Table
@@ -123,6 +122,12 @@ A more detailed description for filling in these views will be given below.
 |:-----------------:|:---------------------:|:---------------------------------------------:|:---------------:|
 | SKU group         | Group_ID              | ---                                           | ---             |
 | Group name        | Group_Name            | Cyrillic, Arabic numerals, special characters | ---             | 
+
+#### Date of analysis formation Table
+
+| **Field**         | **System field name** | **Format / possible values**                  | **Description** |
+|:-----------------:|:---------------------:|:---------------------------------------------:|:---------------:|
+| Date of analysis         | Analysis_Formation              | dd.mm.yyyy hh:mm:ss                                           | ---             |
 
 
 ### Output data

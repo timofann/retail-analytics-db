@@ -52,15 +52,14 @@ Segmentation by frequency of visits
    lowest to the highest values.
 
 7. **Determination of the segment.** 10% of customers with the shortest visit intervals have the highest frequency of
-   visits and belong to the `High` segment. The next 25% of customers with the shortest visit intervals are in
-   the `Medium' segment. The remaining 65% of customers are in the `Low` segment. The data is specified in the `
-   Customer_Frequency_Segment` field of the Customers table.
+   visits and belong to the `Often` segment. The next 25% of customers with the shortest visit intervals are in
+   the `Occasionally` segment. The remaining 65% of customers are in the `Rarely` segment. The data is specified in the `Customer_Frequency_Segment` field of the Customers table.
 
 Segmentation by churn probability
 
 8. **Determination of the period after the previous transaction.** It is necessary to determine the number of days
    passed since the latest transaction at the moment of analysis for each customer. This is done by subtracting the date
-   of the latest customer transaction from the current date (date of analysis formation). Use data from
+   of the latest customer transaction from the [date of analysis formation](../README.md#date-of-analysis-formation-table). Use data from
    the `Transaction_DateTime` field of [Transactions table](../README.md#transactions-table) for all cards of the
    customer.
 
