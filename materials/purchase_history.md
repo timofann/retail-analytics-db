@@ -44,3 +44,19 @@
    aggregate of Customer ID (`Customer_ID`) – Transaction ID (`Transaction_ID`) – Group ID (`Group_ID`). The transaction
    date automatically applies to all groups that were purchased within this transaction.
 
+7. **Calculation of financial indicators for a group.** For each customer the main financial indicators are calculated
+   for each group by summing up similar indicators for all SKUs that are part of a particular group. The data from
+   the [Checks table](../README.md#checks-table) is summed up. The following indicators are calculated:
+
+    - The prime cost of products purchased by the customer during the analyzed period. The values obtained by
+      multiplying the data from the `SKU_Purchase_Price` field by the data from the `SKU_Amount` field for all SKUs of
+      the analyzed group for the customer are summed up. The data is saved in the `Group_Cost` field of
+      the [Purchase History table](../README.md#purchase-history-view).
+
+    - The base retail value during the analyzed period. The data from the `SKU_Summ` field for all SKUs of the analyzed
+      group for the customer is summed up. The data is saved in the `Group_Summ` field of
+      the [Purchase History table](../README.md#purchase-history-view).
+
+    - The actual cost paid (including purchases made with loyalty program bonuses, but not including discounts). The
+      data of the `SKU_Summ_Paid` field on all SKUs of the analyzed group for the customer is summed up. The data is
+      saved in the `Group_Summ_Paid` field of the [Purchase history table](../README.md#purchase-history-view).
