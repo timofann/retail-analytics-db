@@ -6,12 +6,12 @@
 |:---------------------------------------------:|:------------------------------:|:--------------------------------:|:-----------------------------------------------------------------------------:|
 | Customer ID                                   | Customer_ID                    | ---                              | Unique value                                                                   |
 | Value of the average check                    | Customer_Average_Check         | Arabic numeral, decimal          | Value of the average check in rubles for the analyzed period                 |
-| Average check segment                         | Customer_Average_Check_Segment | High; Middle; Low                | Segment description                                                            |
+| Average check segment                         | Customer_Average_Check_Segment | High; Medium; Low                | Segment description                                                            |
 | Transaction frequency value                   | Customer_Frequency             | Arabic numeral, decimal          | Value of customer visit frequency in the average number of days between transactions |
 | Transaction frequency segment                 | Customer_Frequency_Segment     | Often; Occasionally; Rarely      | Segment description                                                            |
 | Number of days since the previous transaction | Customer_Inactive_Period       | Arabic numeral, decimal          | Number of days passed since the previous transaction date. Time is also taken into account, i.e. the result may not be an integer               |
 | Churn rate                                    | Customer_Churn_Rate            | Arabic numeral, decimal          | Value of the customer churn rate                                               |
-| Churn rate segment                            | Customer_Churn_Segment         | High; Middle; Low                | Segment description                                                            |
+| Churn rate segment                            | Customer_Churn_Segment         | High; Medium; Low                | Segment description                                                            |
 | Segment number                                | Customer_Segment               | Arabic numeral                   | The number of the segment to which the customer belongs                        |
 | Main  store ID                                | Customer_Primary_Store         | ---                              | ---                                                                            |
 
