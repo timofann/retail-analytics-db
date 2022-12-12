@@ -63,8 +63,8 @@ A more detailed description for filling in these views will be given below.
 | **Field**                   | **System field name**       | **Format / possible values**                                                     | **Description**                                                                                              |
 |:---------------------------:|:---------------------------:|:--------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|
 | Customer ID                 | Customer_ID                 | ---                                                                              | ---                                                                                                       |
-| Name                        | Customer_Name               | Cyrillic, the first letter is capitalized, the rest are upper case, dashes and spaces are allowed | ---                                                                                                       |
-| Surname                     | Customer_Surname            | Cyrillic, the first letter is capitalized, the rest are upper case, dashes and spaces are allowed | ---                                                                                                       |
+| Name                        | Customer_Name               | Cyrillic or Latin, the first letter is capitalized, the rest are upper case, dashes and spaces are allowed | ---                                                                                                       |
+| Surname                     | Customer_Surname            | Cyrillic or Latin, the first letter is capitalized, the rest are upper case, dashes and spaces are allowed | ---                                                                                                       |
 | Customer E-mail             | Customer_Primary_Email      | E-mail format                                                                    | ---                                                                                                                             |
 | Customer phone number       | Customer_Primary_Phone      | +7 and 10 Arabic numerals                                                                 | ---                                                                                                       |
 
@@ -101,7 +101,7 @@ A more detailed description for filling in these views will be given below.
 | **Field**                     | **System field name**       | **Format / possible values**                  | **Description**                                                                                                                                                                                                |
 |:-----------------------------:|:---------------------------:|:---------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | Product ID                    | SKU_ID                      | ---                                           | ---                                                                                                                                                                                                            |
-| Product name                  | SKU_Name                    | Cyrillic, Arabic numerals, special characters | ---                                                                                                                                                                                                            |
+| Product name                  | SKU_Name                    | Cyrillic or Latin, Arabic numerals, special characters | ---                                                                                                                                                                                                            |
 | SKU group                     | Group_ID                    | ---                                           | The ID of the group of related products to which the product belongs (for example, same type of yogurt of the same manufacturer and volume, but different flavors). One identifier is specified for all products in the group |
 | Product purchase price | SKU_Purchase_Price          | Arabic numeral                                       | The purchase price of the product for this store                                                                                                                                                             |
 | Product retail price   | SKU_Retail_Price            | Arabic numeral                                       | The sale price of the product excluding discounts for this store                                                                                                                                          |
@@ -121,7 +121,7 @@ A more detailed description for filling in these views will be given below.
 | **Field**         | **System field name** | **Format / possible values**                  | **Description** |
 |:-----------------:|:---------------------:|:---------------------------------------------:|:---------------:|
 | SKU group         | Group_ID              | ---                                           | ---             |
-| Group name        | Group_Name            | Cyrillic, Arabic numerals, special characters | ---             | 
+| Group name        | Group_Name            | Cyrillic or Latin, Arabic numerals, special characters | ---             | 
 
 #### Date of analysis formation Table
 
@@ -204,7 +204,7 @@ If *csv* or *tsv* files were used to add data to the tables, they must also be u
 
 ## Part 2. Creating views
 
-Create a *part2.sql* script and write the views described above in the [Output data](#output-data). Also add test queries for each view.
+Create a *part2.sql* script and write the views described above in the [Output data](#output-data). Also add test queries for each view. It is acceptable to create a separate script starting with *part2_* for each view.
 
 You can find more information for each field in the materials.
 
@@ -229,7 +229,7 @@ Function parameters:
 - number of transactions (for method 2)
 - coefficient of average check increase
 - maximum churn index
-- maximum share of transactions with a discount
+- maximum share of transactions with a discount (in percent)
 - allowable share of margin (in percent)
 
 ##### Offer condition determination
@@ -280,7 +280,7 @@ Function parameters:
 - first and last dates of the period
 - added number of transactions
 - maximum churn index
-- maximum share of transactions with a discount
+- maximum share of transactions with a discount (in percent)
 - allowable margin share (in percent)
 
 ##### Offer condition determination
@@ -329,7 +329,7 @@ Function parameters:
 - number of groups
 - maximum churn index
 - maximum consumption stability index
-- maximum SKU share
+- maximum SKU share (in percent)
 - allowable margin share (in percent)
 
 Offers aimed at margin growth due to cross-sales involve switching the customer to the highest margin SKU within the demanded group.
