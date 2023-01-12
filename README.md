@@ -103,8 +103,7 @@ A more detailed description for filling in these views will be given below.
 | Product ID                    | SKU_ID                      | ---                                           | ---                                                                                                                                                                                                            |
 | Product name                  | SKU_Name                    | Cyrillic or Latin, Arabic numerals, special characters | ---                                                                                                                                                                                                            |
 | SKU group                     | Group_ID                    | ---                                           | The ID of the group of related products to which the product belongs (for example, same type of yogurt of the same manufacturer and volume, but different flavors). One identifier is specified for all products in the group |
-| Product purchase price | SKU_Purchase_Price          | Arabic numeral                                       | The purchase price of the product for this store                                                                                                                                                             |
-| Product retail price   | SKU_Retail_Price            | Arabic numeral                                       | The sale price of the product excluding discounts for this store                                                                                                                                          |
+
 
 #### Stores Table
 
