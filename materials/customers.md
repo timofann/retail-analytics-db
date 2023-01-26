@@ -7,7 +7,7 @@
 | Customer ID                                   | Customer_ID                    | ---                              | Unique value                                                                   |
 | Value of the average check                    | Customer_Average_Check         | Arabic numeral, decimal          | Value of the average check in rubles for the analyzed period                 |
 | Average check segment                         | Customer_Average_Check_Segment | High; Medium; Low                | Segment description                                                            |
-| Transaction frequency value                   | Customer_Frequency             | Arabic numeral, decimal          | Value of customer visit frequency in the average number of days between transactions |
+| Transaction frequency value                   | Customer_Frequency             | Arabic numeral, decimal          | Value of customer visit frequency in the average number of days between transactions. Time is also taken into account, i.e. the result may not be an integer |
 | Transaction frequency segment                 | Customer_Frequency_Segment     | Often; Occasionally; Rarely      | Segment description                                                            |
 | Number of days since the previous transaction | Customer_Inactive_Period       | Arabic numeral, decimal          | Number of days passed since the previous transaction date. Time is also taken into account, i.e. the result may not be an integer               |
 | Churn rate                                    | Customer_Churn_Rate            | Arabic numeral, decimal          | Value of the customer churn rate                                               |
@@ -101,7 +101,7 @@ Assigning a segment number to a customer
 | 16          | Medium            | Often                      | Low                   |
 | 17          | Medium            | Often                      | Medium                |
 | 18          | Medium            | Often                      | High                  |
-| 19          | Medium            | Rarely                     | Low                   |
+| 19          | High              | Rarely                     | Low                   |
 | 20          | High              | Rarely                     | Medium                |
 | 21          | High              | Rarely                     | High                  |
 | 22          | High              | Occasionally               | Low                   |
