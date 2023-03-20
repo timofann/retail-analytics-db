@@ -362,4 +362,4 @@ Chuck had been staring at the screen for hours and couldn't figure it out. A cer
 All expenses are written off for the development of smart vacuum cleaners, something only the household department has been doing for a long time. Yes, there was a new SP-21 model released at the same time, but still what is this: an innocent typo in the name or an opportune moment? The question that will haunt Chuck in the near future...
 
 
-💡 [Tap here](https://forms.yandex.ru/u/635ab5be84227c207a24b1b6/) **to leave your feedback on the project**. Pedago Team really tries to make your educational experience better.
+💡 [Tap here](https://forms.yandex.ru/cloud/641820bf5d2a060d5d1b2b40/) **to leave your feedback on the project**. Pedago Team really tries to make your educational experience better.
