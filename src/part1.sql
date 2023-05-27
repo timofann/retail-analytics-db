@@ -46,6 +46,14 @@ CREATE TABLE cards (
         FOREIGN KEY (customer_id) REFERENCES personal_information(customer_id)
 );
 
+/* SKU group Table */
+
+DROP TABLE IF EXISTS sku_group;
+CREATE TABLE sku_group (
+    group_id                BIGSERIAL NOT NULL PRIMARY KEY,
+    group_name              VARCHAR NOT NULL
+);
+
 /* Product grid Table */
 
 DROP TABLE IF EXISTS product_grid;
