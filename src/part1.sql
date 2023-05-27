@@ -91,3 +91,19 @@ CREATE TABLE transactions (
     CONSTRAINT transaction_store_id_foreign_key
         FOREIGN KEY (transaction_store_id) REFERENCES stores(transaction_store_id)
 );
+
+/* Checks Table */
+
+DROP TABLE IF EXISTS checks;
+CREATE TABLE checks (
+    transaction_id          BIGINT, -- transaction ID is specified for all products in the check
+    CONSTRAINT transaction_id_foreign_key 
+        FOREIGN KEY (transaction_id) REFERENCES transactions(transaction_id),
+    sku_id                  BIGINT,
+    CONSTRAINT sku_id_foreign_key 
+        FOREIGN KEY (sku_id) REFERENCES product_grid(sku_id),
+    sku_amount              BIGINT, -- the quantity of the purchased product
+    sku_summ                NUMERIC, -- the purchase amount of the actual volume of this product in rubles (full price without discounts and bonuses)
+    sku_summ_paid           NUMERIC, -- the amount actually paid for the product not including the discount
+    sku_discount            NUMERIC -- the size of the discount granted for the product in rubles
+);
