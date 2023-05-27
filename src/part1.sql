@@ -64,3 +64,15 @@ CREATE TABLE product_grid (
     CONSTRAINT group_id_foreign_key
         FOREIGN KEY (group_id) REFERENCES sku_group(group_id)
 );
+
+/* Stores Table */
+
+DROP TABLE IF EXISTS stores;
+CREATE TABLE stores (
+    transaction_store_id    BIGSERIAL PRIMARY KEY,
+    sku_id                  BIGINT,
+    CONSTRAINT sku_id_foreign_key
+        FOREIGN KEY (sku_id) REFERENCES product_grid(sku_id),
+    sku_purchase_price      NUMERIC, -- purchasing price of products for this store
+    sku_retail_price        NUMERIC -- the sale price of the product excluding discounts for this store
+);
