@@ -41,7 +41,22 @@ CREATE TABLE personal_information (
 DROP TABLE IF EXISTS cards;
 CREATE TABLE cards (
     customer_card_id        BIGINT NOT NULL PRIMARY KEY,
-    customer_id             BIGINT,
-    CONSTRAINT customer_id_foreign_key_constraint 
+    customer_id             BIGINT, -- one customer can own several cards
+    CONSTRAINT customer_id_foreign_key
         FOREIGN KEY (customer_id) REFERENCES personal_information(customer_id)
 );
+
+/* Transactions Table */
+
+DROP TABLE IF EXISTS transactions;
+CREATE TABLE transactions (
+    transaction_id          BIGSERIAL PRIMARY KEY,
+    customer_card_id        BIGINT,
+    CONSTRAINT customer_card_id_foreign_key 
+        FOREIGN KEY (customer_id) REFERENCES cards(customer_card_id)
+    transaction_summ        NUMERIC, -- transaction sum in rubles (full purchase price excluding discounts)
+    transaction_datetime    TIMESTAMPTZ, -- date and time when the transaction was made
+    transaction_store_id, -- the store where the transaction was made
+);
+
+select typname, typlen from pg_type where typname ~ '^timestamp';
