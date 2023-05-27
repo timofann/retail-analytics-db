@@ -46,6 +46,37 @@ CREATE TABLE cards (
         FOREIGN KEY (customer_id) REFERENCES personal_information(customer_id)
 );
 
+/* SKU group Table */
+
+DROP TABLE IF EXISTS sku_group;
+CREATE TABLE sku_group (
+    group_id                BIGSERIAL NOT NULL PRIMARY KEY,
+    group_name              VARCHAR NOT NULL
+);
+
+/* Product grid Table */
+
+DROP TABLE IF EXISTS product_grid;
+CREATE TABLE product_grid (
+    sku_id                  BIGSERIAL PRIMARY KEY,
+    sku_name                VARCHAR NOT NULL,
+    group_id                BIGINT, --the ID of the group of related products to which the product belongs
+    CONSTRAINT group_id_foreign_key
+        FOREIGN KEY (group_id) REFERENCES sku_group(group_id)
+);
+
+/* Stores Table */
+
+DROP TABLE IF EXISTS stores;
+CREATE TABLE stores (
+    transaction_store_id    BIGSERIAL PRIMARY KEY,
+    sku_id                  BIGINT,
+    CONSTRAINT sku_id_foreign_key
+        FOREIGN KEY (sku_id) REFERENCES product_grid(sku_id),
+    sku_purchase_price      NUMERIC, -- purchasing price of products for this store
+    sku_retail_price        NUMERIC -- the sale price of the product excluding discounts for this store
+);
+
 /* Transactions Table */
 
 DROP TABLE IF EXISTS transactions;
@@ -58,5 +89,3 @@ CREATE TABLE transactions (
     transaction_datetime    TIMESTAMPTZ, -- date and time when the transaction was made
     transaction_store_id, -- the store where the transaction was made
 );
-
-select typname, typlen from pg_type where typname ~ '^timestamp';
