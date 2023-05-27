@@ -53,3 +53,14 @@ CREATE TABLE sku_group (
     group_id                BIGSERIAL NOT NULL PRIMARY KEY,
     group_name              VARCHAR NOT NULL
 );
+
+/* Product grid Table */
+
+DROP TABLE IF EXISTS product_grid;
+CREATE TABLE product_grid (
+    sku_id                  BIGSERIAL PRIMARY KEY,
+    sku_name                VARCHAR NOT NULL,
+    group_id                BIGINT, --the ID of the group of related products to which the product belongs
+    CONSTRAINT group_id_foreign_key
+        FOREIGN KEY (group_id) REFERENCES sku_group(group_id)
+);
