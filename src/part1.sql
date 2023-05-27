@@ -45,3 +45,12 @@ CREATE TABLE cards (
     CONSTRAINT customer_id_foreign_key_constraint 
         FOREIGN KEY (customer_id) REFERENCES personal_information(customer_id)
 );
+
+/* Product grid Table */
+
+DROP TABLE IF EXISTS product_grid;
+CREATE TABLE product_grid (
+    sku_id                  BIGSERIAL PRIMARY KEY,
+    sku_name                VARCHAR NOT NULL,
+    group_id
+);
