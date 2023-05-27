@@ -107,3 +107,10 @@ CREATE TABLE checks (
     sku_summ_paid           NUMERIC, -- the amount actually paid for the product not including the discount
     sku_discount            NUMERIC -- the size of the discount granted for the product in rubles
 );
+
+/* Date of analysis formation Table */
+
+DROP TABLE IF EXISTS date_of_analysis_formation;
+CREATE TABLE date_of_analysis_formation (
+    analysis_formation      TIMESTAMP
+);
