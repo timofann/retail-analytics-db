@@ -36,7 +36,12 @@ CREATE TABLE personal_information (
             'personal_information', 'customer_primary_phone')
 );
 
-SELECT * FROM personal_information;
-INSERT INTO personal_information VALUES (4, 'Anna-sv', 'Dasavga-dscs', '.an.na@gqwbfb'); --fix 1 domain
+/* Cards Table */
 
-SELECT * FROM personal_information;
+DROP TABLE IF EXISTS cards;
+CREATE TABLE cards (
+    customer_card_id        BIGINT NOT NULL PRIMARY KEY,
+    customer_id             BIGINT,
+    CONSTRAINT customer_id_foreign_key_constraint 
+        FOREIGN KEY (customer_id) REFERENCES personal_information(customer_id)
+);
