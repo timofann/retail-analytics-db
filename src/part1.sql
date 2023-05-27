@@ -84,8 +84,10 @@ CREATE TABLE transactions (
     transaction_id          BIGSERIAL PRIMARY KEY,
     customer_card_id        BIGINT,
     CONSTRAINT customer_card_id_foreign_key 
-        FOREIGN KEY (customer_id) REFERENCES cards(customer_card_id)
+        FOREIGN KEY (customer_card_id) REFERENCES cards(customer_card_id),
     transaction_summ        NUMERIC, -- transaction sum in rubles (full purchase price excluding discounts)
     transaction_datetime    TIMESTAMPTZ, -- date and time when the transaction was made
-    transaction_store_id, -- the store where the transaction was made
+    transaction_store_id    BIGINT, -- the store where the transaction was made
+    CONSTRAINT transaction_store_id_foreign_key
+        FOREIGN KEY (transaction_store_id) REFERENCES stores(transaction_store_id)
 );
