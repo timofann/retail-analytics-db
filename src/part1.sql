@@ -45,3 +45,11 @@ CREATE TABLE cards (
     CONSTRAINT customer_id_foreign_key_constraint 
         FOREIGN KEY (customer_id) REFERENCES personal_information(customer_id)
 );
+
+/* SKU group Table */
+
+DROP TABLE IF EXISTS sku_group;
+CREATE TABLE sku_group (
+    group_id                BIGSERIAL NOT NULL PRIMARY KEY,
+    group_name              VARCHAR NOT NULL
+);
