@@ -1,17 +1,8 @@
-DROP TABLE IF EXISTS personal_information CASCADE;
-DROP TABLE IF EXISTS cards CASCADE;
-DROP TABLE IF EXISTS sku_groups CASCADE;
-DROP TABLE IF EXISTS products CASCADE;
-DROP TABLE IF EXISTS stores CASCADE;
-DROP TABLE IF EXISTS stores_products CASCADE;
-DROP TABLE IF EXISTS transactions CASCADE;
-DROP TABLE IF EXISTS checks CASCADE;
-DROP TABLE IF EXISTS date_of_analysis_formation CASCADE;
+CALL drop_tables();
 
-
-/*  ===  Personal Information Table  ===
-    - stores information about customers;
-    - uses unique key for identification  */
+/*                 ===  Personal Information Table  ===
+                   - stores information about customers;
+                   - uses unique key for identification                */
 
 CREATE TABLE personal_information (
     customer_id             BIGSERIAL PRIMARY KEY,
@@ -29,7 +20,7 @@ CREATE TABLE personal_information (
     CONSTRAINT customer_surname_capitalized_latin_letter
         CHECK (starts_with_capitalised_latin_letter(customer_surname, 
             'personal_information', 'customer_surname')),
-    customer_primary_email  VARCHAR NOT NULL,
+    customer_primary_email  VARCHAR NOT NULL UNIQUE,
     CONSTRAINT customer_primary_email_email_format 
         CHECK (has_email_format(customer_primary_email, 
             'personal_information', 'customer_primary_email')),
@@ -42,15 +33,15 @@ CREATE TABLE personal_information (
     CONSTRAINT customer_primary_email_firstleveldomain  
         CHECK (has_correct_firstleveldomain(customer_primary_email, 
             'personal_information', 'customer_primary_email')),
-    customer_primary_phone  VARCHAR NOT NULL,
+    customer_primary_phone  VARCHAR NOT NULL UNIQUE,
     CONSTRAINT customer_primary_phone_format
         CHECK (has_phone_format(customer_primary_phone, 
             'personal_information', 'customer_primary_phone'))
 );
 
-/*  ============  Cards Table  ===========
-    - stores unique card id and its owner;
-    - one customer can own several cards  */
+/*                ============  Cards Table  ===========
+                  - stores unique card id and its owner;
+                  - one customer can own several cards                 */
 
 CREATE TABLE cards (
     card_id                 BIGSERIAL PRIMARY KEY,
@@ -59,39 +50,39 @@ CREATE TABLE cards (
         FOREIGN KEY (customer_id) REFERENCES personal_information(customer_id)
 );
 
-/*  ========  SKU Group Table  ======== 
-    - stores unique groups of the
-      similar products and their names  */
+/*                 ========  SKU Group Table  ========
+                   - stores unique groups of the
+                     similar products and their names                  */
 
 CREATE TABLE sku_groups (
     group_id                BIGSERIAL PRIMARY KEY,
-    group_name              VARCHAR NOT NULL
+    group_name              VARCHAR NOT NULL UNIQUE
 );
 
-/*  ================  Products Table  ================
-    - stores possible unique products and their names;
-    - stores the group that each product belongs to  */
+/*         ================  Products Table  ================      
+           - stores possible unique products and their names;      
+           - stores the group that each product belongs to             */
 
 CREATE TABLE products (
     sku_id                  BIGSERIAL PRIMARY KEY,
-    sku_name                VARCHAR NOT NULL,
+    sku_name                VARCHAR NOT NULL UNIQUE,
     group_id                BIGINT,
     CONSTRAINT group_id_foreign_key
-        FOREIGN KEY (group_id) REFERENCES sku_group(group_id)
+        FOREIGN KEY (group_id) REFERENCES sku_groups(group_id)
 );
 
-/*  ===========  Stores Table  ===========
-    - stores unique shops and their names  */
+/*                ===========  Stores Table  ===========
+                  - stores unique shops and their names                */
 
 CREATE TABLE stores (
     store_id                BIGSERIAL PRIMARY KEY,
     store_name              VARCHAR NOT NULL
 );
 
-/*  ==============  Stores-Products Table  ==============
-    - stores unique pair certain store - certain product;
-    - purchasing price of the product for the store;
-    - the sale price of the product excluding discounts  */
+/*         ==============  Stores-Products Table  ==============
+           - stores unique pair certain store - certain product;
+           - purchasing price of the product for the store;
+           - the sale price of the product excluding discounts         */
 
 CREATE TABLE stores_products (
     store_id                BIGINT,
@@ -99,27 +90,32 @@ CREATE TABLE stores_products (
         FOREIGN KEY (store_id) REFERENCES stores(store_id),
     sku_id                  BIGINT,
     CONSTRAINT sku_id_foreign_key
-        FOREIGN KEY (sku_id) REFERENCES product_grid(sku_id),
-    sku_purchase_price      NUMERIC,
-    sku_retail_price        NUMERIC,
+        FOREIGN KEY (sku_id) REFERENCES products(sku_id),
+    sku_purchase_price      MONEY,
+    sku_retail_price        MONEY,
+    CONSTRAINT nonnegative_money_stores_products
+        CHECK (sku_purchase_price > 0.0::money AND 
+               sku_retail_price > 0.0::money),
     CONSTRAINT store_primary_key 
         PRIMARY KEY (store_id, sku_id)
 );
 
-/*  ============  Transactions Table  ============ 
-    - stores unique money transfers/transactions;
-    - customer card that was used to make it;
-    - transaction sum in rubles (full purchase 
-      price excluding discounts);
-    - date and time when the transaction was made;
-    - the store where the transaction was made     */
+/*           ============  Transactions Table  ============ 
+             - stores unique money transfers/transactions;
+             - customer card that was used to make it;
+             - transaction sum in rubles (full purchase 
+               price excluding discounts);
+             - date and time when the transaction was made;
+             - the store where the transaction was made               */
 
 CREATE TABLE transactions (
     transaction_id          BIGSERIAL PRIMARY KEY,
     card_id                 BIGINT,
     CONSTRAINT card_id_foreign_key 
         FOREIGN KEY (card_id) REFERENCES cards(card_id),
-    transaction_summ        NUMERIC,
+    transaction_summ        MONEY,
+    CONSTRAINT transaction_summ_is_positive
+        CHECK (transaction_summ > 0.0::money),
     transaction_datetime    TIMESTAMPTZ,
     store_id                BIGINT,
     CONSTRAINT store_id_foreign_key
@@ -136,22 +132,60 @@ CREATE TABLE transactions (
     - the size of the discount granted for the product in rubles      */
 
 CREATE TABLE checks (
-    transaction_id          BIGINT, -- transaction ID is specified for all products in the check
+    transaction_id          BIGINT,
     CONSTRAINT transaction_id_foreign_key 
         FOREIGN KEY (transaction_id) REFERENCES transactions(transaction_id),
     sku_id                  BIGINT,
     CONSTRAINT sku_id_foreign_key 
-        FOREIGN KEY (sku_id) REFERENCES product_grid(sku_id),
-    sku_amount              BIGINT,
-    sku_summ                NUMERIC,
-    sku_summ_paid           NUMERIC,
-    sku_discount            NUMERIC,
+        FOREIGN KEY (sku_id) REFERENCES products(sku_id),
+    sku_amount              NUMERIC,
+    CONSTRAINT sku_amount_is_positive
+        CHECK (sku_amount > 0.0),
+    sku_summ                MONEY,
+    sku_summ_paid           MONEY,
+    sku_discount            MONEY,
+    CONSTRAINT nonnegative_money
+        CHECK (sku_summ >= 0.0::money AND 
+               sku_summ_paid >= 0.0::money AND
+               sku_discount >= 0.0::money),
     CONSTRAINT check_primary_key 
         PRIMARY KEY (transaction_id, sku_id)
 );
 
-/* ===  Date of analysis formation Table  === */
+/*             ===  Date of analysis formation Table  ===             */
 
 CREATE TABLE date_of_analysis_formation (
     analysis_formation      TIMESTAMP
 );
+
+/*                         === DATA EXPORT ===                        */
+
+INSERT INTO personal_information VALUES (DEFAULT, 'My', 'Regree', 'regree@student.21-school.ru', '+79288903035');
+SELECT * FROM personal_information;
+SELECT * FROM retail_analitycs_config;
+CALL export_to_csv('personal_information');
+CALL export_to_tsv('personal_information');
+
+/*                         === DATA IMPORT ===                        */
+
+CALL truncate_tables()
+
+CALL import_from_csv('personal_information');
+CALL import_from_csv('cards');
+CALL import_from_csv('sku_groups');
+CALL import_from_csv('products');
+CALL import_from_csv('stores');
+CALL import_from_csv('stores_products');
+CALL import_from_csv('transactions');
+CALL import_from_csv('checks');
+CALL import_from_csv('date_of_analysis_formation');
+
+SELECT * FROM personal_information;
+SELECT * FROM cards;
+SELECT * FROM sku_groups;
+SELECT * FROM products;
+SELECT * FROM stores;
+SELECT * FROM stores_products;
+SELECT * FROM transactions;
+SELECT * FROM checks;
+SELECT * FROM date_of_analysis_formation;
