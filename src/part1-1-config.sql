@@ -76,6 +76,21 @@ BEGIN
 END $$
 LANGUAGE plpgsql;
 
+DROP PROCEDURE IF EXISTS export(CHAR, VARCHAR, VARCHAR) CASCADE;
+CREATE OR REPLACE PROCEDURE export(
+    mark            CHAR,
+    table_name      VARCHAR
+) AS $$
+BEGIN
+    IF mark <> ',' AND mark <> E'\t' THEN
+        RAISE 'Using export with wrong mark symbol. Use '','' or ''\t'''; END IF;
+    IF mark = ',' THEN
+        CALL export_to_csv(table_name); END IF;
+    IF mark = E'\t' THEN
+        CALL export_to_tsv(table_name); END IF;
+END $$
+LANGUAGE plpgsql;
+
 /*                         === DATA IMPORT ===                        */
 
 DROP PROCEDURE IF EXISTS import_from_tsv(VARCHAR, VARCHAR) CASCADE;
@@ -125,5 +140,36 @@ CREATE OR REPLACE PROCEDURE import_from_csv(
 ) AS $$
 BEGIN
     CALL import_from_csv(table_name, table_name || '.csv');
+END $$
+LANGUAGE plpgsql;
+
+DROP PROCEDURE IF EXISTS import(CHAR, VARCHAR, VARCHAR) CASCADE;
+CREATE OR REPLACE PROCEDURE import(
+    mark            CHAR,
+    table_name      VARCHAR,
+    file_name       VARCHAR
+) AS $$
+BEGIN
+    IF mark <> ',' AND mark <> E'\t' THEN
+        RAISE 'Using import with wrong mark symbol. Use '','' or ''\t'''; END IF;
+    IF mark = ',' THEN
+        CALL import_from_csv(table_name, file_name); END IF;
+    IF mark = E'\t' THEN
+        CALL import_from_tsv(table_name, file_name); END IF;
+END $$
+LANGUAGE plpgsql;
+
+DROP PROCEDURE IF EXISTS import(CHAR, VARCHAR) CASCADE;
+CREATE OR REPLACE PROCEDURE import(
+    mark            CHAR,
+    table_name      VARCHAR
+) AS $$
+BEGIN
+    IF mark <> ',' AND mark <> E'\t' THEN
+        RAISE 'Using import with wrong mark symbol. Use '','' or ''\t'''; END IF;
+    IF mark = ',' THEN
+        CALL import_from_csv(table_name); END IF;
+    IF mark = E'\t' THEN
+        CALL import_from_tsv(table_name); END IF;
 END $$
 LANGUAGE plpgsql;
