@@ -44,7 +44,8 @@ FROM personal_information;
 
 SELECT
   cards.customer_id,
-  AVG(transactions.transaction_summ::numeric)
+  AVG(transactions.transaction_summ::numeric) AS customer_average_check,
+  CUME_DIST() OVER (ORDER BY customer_average_check) AS check_range
 FROM personal_information
   JOIN cards ON personal_information.customer_id = cards.customer_id
   JOIN transactions ON cards.card_id = transactions.card_id
