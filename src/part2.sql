@@ -8,6 +8,17 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION get_interval_between_dates(init_date timestamp, stop_date timestamp)
+RETURNS NUMERIC
+LANGUAGE plpgsql
+AS
+$$
+DECLARE
+  date_interval INTERVAL := init_date - stop_date;
+BEGIN
+  RETURN (SELECT max(analysis_formation) FROM date_of_analysis_formation);
+END;
+$$;
 
 
 
@@ -24,29 +35,29 @@ CREATE OR REPLACE VIEW Customers (
   Customer_Primary_Store)
 AS
 
-
-WITH help_table AS (
+WITH table_average_check AS (
 SELECT
-  cards.customer_id
+  cards.customer_id,
+  AVG(transactions.transaction_summ::numeric) AS customer_average_check
 FROM personal_information
   JOIN cards ON personal_information.customer_id = cards.customer_id
   JOIN transactions ON cards.card_id = transactions.card_id
-GROUP BY cards.customer_id)
+GROUP BY cards.customer_id),
+
+difference_between_dates
 
 
 
-
-
-
+  -- CUME_DIST() OVER (ORDER BY customer_average_check) AS check_range
 
 
 FROM personal_information;
 
+
 SELECT
   cards.customer_id,
-  AVG(transactions.transaction_summ::numeric) AS customer_average_check,
-  CUME_DIST() OVER (ORDER BY customer_average_check) AS check_range
 FROM personal_information
   JOIN cards ON personal_information.customer_id = cards.customer_id
   JOIN transactions ON cards.card_id = transactions.card_id
 GROUP BY cards.customer_id
+
