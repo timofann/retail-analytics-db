@@ -18,9 +18,16 @@ CREATE OR REPLACE VIEW purchase_history AS
 
 -- TEST
 SELECT * FROM purchase_history;
--- SELECT * FROM transactions;
--- SELECT * FROM cards;
+
+-- -- show table columns
+-- SELECT column_name, data_type
+-- FROM information_schema.columns
+-- WHERE table_schema = 'public' AND table_name = 'purchase_history';
+
+-- show tables
+SELECT * FROM transactions;
+SELECT * FROM cards;
 -- SELECT * FROM personal_information;
--- SELECT * FROM checks;
--- SELECT * FROM products;
+SELECT * FROM checks;
+SELECT * FROM products;
 -- SELECT * FROM stores_products;
