@@ -23,7 +23,49 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION get_primary_store_id(target_customer_id BIGINT)
+RETURNS BIGINT
+LANGUAGE plpgsql
+AS
+$$
+BEGIN
+RETURN
+ (WITH stat_stores AS (
+ SELECT
+   t.transaction_store_id,
+   COUNT(*) OVER w1 AS visits_count,
+   MAX(t.transaction_datetime) OVER w1 AS last_visit_date,
+   ROW_NUMBER() OVER w2 AS store_rank
+ FROM personal_data p
+   JOIN cards c ON p.customer_id = c.customer_id
+   JOIN transactions t ON c.customer_card_id = t.customer_card_id
+ WHERE t.transaction_datetime <= get_last_analysis_date()
+   AND p.customer_id = target_customer_id
+ WINDOW w1 AS (PARTITION BY t.transaction_store_id),
+        w2 AS (ORDER BY t.transacion_datetime DESC)),
 
+  get_popular_store AS (
+  SELECT DISTINCT
+      FIRST_VALUE(transaction_store_id) OVER (ORDER BY visits_count DESC, last_visit_date DESC) AS popular_store_id
+    FROM stat_stores),
+
+  get_last_store AS (
+  SELECT DISTINCT
+    MAX(transaction_store_id) AS last_store_id,
+    MAX(transaction_store_id) = MIN(transaction_store_id) AS is_last_store
+  FROM stat_stores
+  WHERE store_rank <= 3)
+
+  SELECT
+    CASE
+    WHEN (SELECT is_last_store FROM get_last_store last)
+      THEN (SELECT last_store_id FROM get_last_store last)
+    ELSE (SELECT popular_store_id FROM get_popular_store)
+    END AS customer_primary_store_id
+  );
+
+END;
+$$;
 
 CREATE OR REPLACE VIEW Customers (
   Customer_ID,
