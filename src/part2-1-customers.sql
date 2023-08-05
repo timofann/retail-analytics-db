@@ -67,15 +67,15 @@ RETURN
 END;
 $$;
 
-CREATE OR REPLACE VIEW Customers (
-  Customer_ID,
-  Customer_Average_Check,
-  Customer_Average_Check_Segment,
-  Customer_Frequency,
-  Customer_Frequency_Segment,
-  Customer_Inactive_Period,
-  Customer_Churn_Rate,
-  Customer_Churn_Segment)
+CREATE OR REPLACE VIEW Customers
+  -- Customer_ID,
+  -- Customer_Average_Check,
+  -- Customer_Average_Check_Segment,
+  -- Customer_Frequency,
+  -- Customer_Frequency_Segment,
+  -- Customer_Inactive_Period,
+  -- Customer_Churn_Rate,
+  -- Customer_Churn_Segment)
   -- Customer_Segment
   -- Customer_Primary_Store)
 AS (
@@ -133,7 +133,20 @@ SELECT
   t.customer_frequency_segment,
   t.customer_inactive_period,
   t.customer_churn_rate,
-  t.customer_churn_segment
+  t.customer_churn_segment,
+  CASE customer_average_check_segment
+  WHEN 'Low' THEN 0
+  WHEN 'Medium' THEN 9
+  ELSE 18 END
+  + CASE customer_frequency_segment
+  WHEN 'Rarely' THEN 0
+  WHEN 'Occasionally' THEN 3
+  ELSE 6 END
+  + CASE customer_churn_segment
+  WHEN 'Low' THEN 1
+  WHEN 'Medium' THEN 2
+  ELSE 3 END AS customer_segment,
+  get_primary_store_id(t.customer_id) AS customer_primary_store
 FROM stat_segment t
 ORDER BY t.customer_id
 );  -- Customer view end
