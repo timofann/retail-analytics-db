@@ -1,6 +1,5 @@
-customer_id,customer_name,customer_surname,customer_primary_email,customer_primary_phone
-"1","Desmond","Edelmira","dedelmir@student.21-school.ru","+79280000000"
-"2","Ded","Elmir","dedok@student.21-school.alumni.ru","+79280000010"
-"3","Darr","Pama","darpama@student.21-school.ru","+79146004040"
-"4","Dar","Rpama","d-rpama@student.best-school.ru","+79145003030"
-"5","Myre","Gree","myregree@student.21-school.ru","+79886008080"
+1,Desmond,Edelmira,dedelmir@student.21-school.ru,+79280000000
+2,Ded,Elmir,dedok@student.21-school.alumni.ru,+79280000010
+3,Darr,Pama,darpama@student.21-school.ru,+79146004040
+4,Dar,Rpama,d-rpama@student.best-school.ru,+79145003030
+5,Myre,Gree,myregree@student.21-school.ru,+79886008080

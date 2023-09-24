@@ -65,7 +65,7 @@ CREATE TABLE sku_groups (
 
 CREATE TABLE products (
     sku_id                  BIGSERIAL PRIMARY KEY,
-    sku_name                VARCHAR NOT NULL UNIQUE,
+    sku_name                VARCHAR NOT NULL,
     group_id                BIGINT,
     CONSTRAINT group_id_foreign_key
         FOREIGN KEY (group_id) REFERENCES sku_groups(group_id)
@@ -91,11 +91,11 @@ CREATE TABLE stores_products (
     sku_id                  BIGINT,
     CONSTRAINT sku_id_foreign_key
         FOREIGN KEY (sku_id) REFERENCES products(sku_id),
-    sku_purchase_price      MONEY,
-    sku_retail_price        MONEY,
+    sku_purchase_price      NUMERIC,
+    sku_retail_price        NUMERIC,
     CONSTRAINT nonnegative_money_stores_products
-        CHECK (sku_purchase_price > 0.0::money AND 
-               sku_retail_price > 0.0::money),
+        CHECK (sku_purchase_price > 0.0 AND
+               sku_retail_price > 0.0),
     CONSTRAINT store_primary_key 
         PRIMARY KEY (store_id, sku_id)
 );
@@ -113,10 +113,10 @@ CREATE TABLE transactions (
     card_id                 BIGINT,
     CONSTRAINT card_id_foreign_key 
         FOREIGN KEY (card_id) REFERENCES cards(card_id),
-    transaction_summ        MONEY,
+    transaction_summ        NUMERIC,
     CONSTRAINT transaction_summ_is_positive
-        CHECK (transaction_summ > 0.0::money),
-    transaction_datetime    TIMESTAMPTZ,
+        CHECK (transaction_summ > 0.0),
+    transaction_datetime    TIMESTAMP,
     store_id                BIGINT,
     CONSTRAINT store_id_foreign_key
         FOREIGN KEY (store_id) REFERENCES stores(store_id)
@@ -141,13 +141,13 @@ CREATE TABLE checks (
     sku_amount              NUMERIC,
     CONSTRAINT sku_amount_is_positive
         CHECK (sku_amount > 0.0),
-    sku_summ                MONEY,
-    sku_summ_paid           MONEY,
-    sku_discount            MONEY,
+    sku_summ                NUMERIC,
+    sku_summ_paid           NUMERIC,
+    sku_discount            NUMERIC,
     CONSTRAINT nonnegative_money
-        CHECK (sku_summ >= 0.0::money AND 
-               sku_summ_paid >= 0.0::money AND
-               sku_discount >= 0.0::money),
+        CHECK (sku_summ >= 0.0 AND
+               sku_summ_paid >= 0.0 AND
+               sku_discount >= 0.0),
     CONSTRAINT check_primary_key 
         PRIMARY KEY (transaction_id, sku_id)
 );
@@ -168,7 +168,7 @@ CALL export_to_tsv('personal_information');
 
 /*                         === DATA IMPORT ===                        */
 
-CALL truncate_tables()
+CALL truncate_tables();
 
 CALL import_from_csv('personal_information');
 CALL import_from_csv('cards');
@@ -179,6 +179,10 @@ CALL import_from_csv('stores_products');
 CALL import_from_csv('transactions');
 CALL import_from_csv('checks');
 CALL import_from_csv('date_of_analysis_formation');
+
+CALL import_default_dataset_mini();
+CALL import_default_dataset();
+CALL import_custom_dataset();
 
 SELECT * FROM personal_information;
 SELECT * FROM cards;
