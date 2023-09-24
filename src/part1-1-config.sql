@@ -1,9 +1,5 @@
 /*                       === SESSION SETTINGS ===                     */
 
--- SELECT pg_reload_conf();
-
--- SELECT * FROM pg_file_settings;
-
 DROP TABLE IF EXISTS retail_analitycs_config CASCADE;
 CREATE TABLE retail_analitycs_config (
     id              BIGSERIAL PRIMARY KEY,
