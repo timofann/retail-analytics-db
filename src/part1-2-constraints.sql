@@ -4,7 +4,7 @@ CREATE FUNCTION contains_only_latin_letters_spaces_dashes (
     RETURNS BOOLEAN
 AS $$
 BEGIN
-    IF str SIMILAR TO '[A-Za-z -]*' THEN
+    IF str SIMILAR TO '[А-Яа-яA-Za-z -]*' THEN
         RETURN TRUE;
     END IF;
     RAISE '%.% value should consist of latin letters, spases and dashes only', table_name, field_name;
@@ -18,10 +18,10 @@ CREATE FUNCTION starts_with_capitalised_latin_letter (
     RETURNS BOOLEAN
 AS $$
 BEGIN
-    IF str SIMILAR TO '[A-Z]%' THEN
+    IF str SIMILAR TO '[A-ZА-Я]%' THEN
         RETURN TRUE;
     END IF;
-    RAISE '%.% value should starts with capitalized latin letter', table_name, field_name;
+    RAISE '%.% value should starts with capitalized letter', table_name, field_name;
 END; $$
 LANGUAGE plpgsql
 IMMUTABLE;
