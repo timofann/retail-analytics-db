@@ -152,6 +152,11 @@ CREATE TABLE checks (
         PRIMARY KEY (transaction_id, sku_id)
 );
 
+DROP TRIGGER IF EXISTS sku_is_in_the_shop ON checks;
+CREATE CONSTRAINT TRIGGER sku_is_in_the_shop
+    AFTER INSERT OR UPDATE ON checks FOR EACH ROW
+EXECUTE PROCEDURE check_sku_is_in_the_shop();
+
 /*             ===  Date of analysis formation Table  ===             */
 
 CREATE TABLE date_of_analysis_formation (

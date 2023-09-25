@@ -95,3 +95,25 @@ BEGIN
 END; $$
 LANGUAGE plpgsql
 IMMUTABLE;
+
+DROP FUNCTION IF EXISTS check_sku_is_in_the_shop CASCADE;
+CREATE FUNCTION check_sku_is_in_the_shop()
+    RETURNS TRIGGER
+AS $$
+BEGIN
+    IF (
+        SELECT (
+            SELECT COUNT(store_id)
+            FROM stores_products
+            WHERE store_id = (
+                SELECT store_id
+                FROM transactions
+                WHERE transaction_id = NEW.transaction_id) AND
+                  sku_id = NEW.sku_id) = 0 )
+    THEN
+        RAISE 'sku not in the shop, cant add to check: transaction %, sku %',
+            NEW.transaction_id, NEW.sku_id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
