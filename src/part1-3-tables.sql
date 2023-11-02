@@ -9,18 +9,18 @@ CALL drop_tables();
 CREATE TABLE personal_information (
     customer_id             BIGSERIAL PRIMARY KEY,
     customer_name           VARCHAR NOT NULL,
-    CONSTRAINT customer_name_latin_letters_spaces_dashes 
-        CHECK (contains_only_latin_letters_spaces_dashes(customer_name, 
+    CONSTRAINT customer_name_letters_spaces_dashes 
+        CHECK (contains_only_letters_spaces_dashes(customer_name, 
             'personal_information', 'customer_name')),
-    CONSTRAINT customer_name_capitalized_latin_letter
-        CHECK (starts_with_capitalised_latin_letter(customer_name, 
+    CONSTRAINT customer_name_capitalized_letter
+        CHECK (starts_with_capitalised_letter(customer_name, 
             'personal_information', 'customer_name')),
     customer_surname        VARCHAR NOT NULL,
-    CONSTRAINT customer_surname_latin_letters_spaces_dashes 
-        CHECK (contains_only_latin_letters_spaces_dashes(customer_surname, 
+    CONSTRAINT customer_surname_letters_spaces_dashes 
+        CHECK (contains_only_letters_spaces_dashes(customer_surname, 
             'personal_information', 'customer_surname')),
-    CONSTRAINT customer_surname_capitalized_latin_letter
-        CHECK (starts_with_capitalised_latin_letter(customer_surname, 
+    CONSTRAINT customer_surname_capitalized_letter
+        CHECK (starts_with_capitalised_letter(customer_surname, 
             'personal_information', 'customer_surname')),
     customer_primary_email  VARCHAR NOT NULL UNIQUE,
     CONSTRAINT customer_primary_email_email_format 
@@ -187,7 +187,18 @@ CALL export_to_tsv('personal_information');
 -- CALL import(',', 'checks');
 -- CALL import(',', 'date_of_analysis_formation');
 
-
+-- SELECT setval('personal_information_customer_id_seq', 
+--     (SELECT MAX(customer_id) FROM personal_information));
+-- SELECT SETVAL('cards_card_id_seq', 
+--     (SELECT MAX(card_id) FROM cards));
+-- SELECT SETVAL('sku_groups_group_id_seq', 
+--     (SELECT MAX(group_id) FROM sku_groups));
+-- SELECT SETVAL('products_sku_id_seq', 
+--     (SELECT MAX(sku_id) FROM products));
+-- SELECT SETVAL('stores_store_id_seq', 
+--     (SELECT MAX(store_id) FROM stores));
+-- SELECT SETVAL('transactions_transaction_id_seq', 
+--     (SELECT MAX(transaction_id) FROM transactions));
 
 CALL import_default_dataset_mini();
 CALL import_default_dataset();
@@ -202,5 +213,3 @@ SELECT * FROM stores_products;
 SELECT * FROM transactions;
 SELECT * FROM checks;
 SELECT * FROM date_of_analysis_formation;
-
--- CALL export_to_tsv('transactions'); --- DELETE

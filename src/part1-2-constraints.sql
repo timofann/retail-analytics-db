@@ -1,7 +1,7 @@
 \connect "dbname=retail_analytics user=retail_user"; 
 
-DROP FUNCTION IF EXISTS contains_only_latin_letters_spaces_dashes CASCADE;
-CREATE FUNCTION contains_only_latin_letters_spaces_dashes (
+DROP FUNCTION IF EXISTS contains_only_letters_spaces_dashes CASCADE;
+CREATE FUNCTION contains_only_letters_spaces_dashes (
     str VARCHAR, table_name VARCHAR, field_name VARCHAR )
     RETURNS BOOLEAN
 AS $$
@@ -9,13 +9,13 @@ BEGIN
     IF str SIMILAR TO '[А-Яа-яA-Za-z -]*' THEN
         RETURN TRUE;
     END IF;
-    RAISE '%.% value should consist of latin letters, spases and dashes only', table_name, field_name;
+    RAISE '%.% value should consist of the letters, spases and dashes only', table_name, field_name;
 END; $$
 LANGUAGE plpgsql
 IMMUTABLE;
 
-DROP FUNCTION IF EXISTS starts_with_capitalised_latin_letter CASCADE;
-CREATE FUNCTION starts_with_capitalised_latin_letter (
+DROP FUNCTION IF EXISTS starts_with_capitalised_letter CASCADE;
+CREATE FUNCTION starts_with_capitalised_letter (
     str VARCHAR, table_name VARCHAR, field_name VARCHAR )
     RETURNS BOOLEAN
 AS $$
@@ -23,7 +23,7 @@ BEGIN
     IF str SIMILAR TO '[A-ZА-Я]%' THEN
         RETURN TRUE;
     END IF;
-    RAISE '%.% value should starts with capitalized letter', table_name, field_name;
+    RAISE '%.% value should starts with the capitalized letter', table_name, field_name;
 END; $$
 LANGUAGE plpgsql
 IMMUTABLE;
