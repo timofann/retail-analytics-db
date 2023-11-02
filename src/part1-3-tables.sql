@@ -1,3 +1,5 @@
+\connect "dbname=retail_analytics user=retail_user"; 
+
 CALL drop_tables();
 
 /*                 ===  Personal Information Table  ===
@@ -173,17 +175,19 @@ CALL export_to_tsv('personal_information');
 
 /*                         === DATA IMPORT ===                        */
 
-CALL truncate_tables();
+-- CALL truncate_tables();
 
-CALL import_from_csv('personal_information');
-CALL import_from_csv('cards');
-CALL import_from_csv('sku_groups');
-CALL import_from_csv('products');
-CALL import_from_csv('stores');
-CALL import_from_csv('stores_products');
-CALL import_from_csv('transactions');
-CALL import_from_csv('checks');
-CALL import_from_csv('date_of_analysis_formation');
+-- CALL import(',', 'personal_information');
+-- CALL import(',', 'cards');
+-- CALL import(',', 'sku_groups');
+-- CALL import(',', 'products');
+-- CALL import(',', 'stores');
+-- CALL import(',', 'stores_products');
+-- CALL import(',', 'transactions');
+-- CALL import(',', 'checks');
+-- CALL import(',', 'date_of_analysis_formation');
+
+
 
 CALL import_default_dataset_mini();
 CALL import_default_dataset();
@@ -198,3 +202,5 @@ SELECT * FROM stores_products;
 SELECT * FROM transactions;
 SELECT * FROM checks;
 SELECT * FROM date_of_analysis_formation;
+
+-- CALL export_to_tsv('transactions'); --- DELETE

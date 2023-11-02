@@ -1,3 +1,18 @@
+/*                         === NEW DATABASE ===                       */
+
+CREATE USER retail_user SUPERUSER CREATEDB CREATEROLE;
+
+CREATE DATABASE retail_analytics
+    OWNER retail_user
+    TEMPLATE template0;
+
+ALTER DATABASE retail_analytics
+    SET datestyle TO 'ISO, DMY';
+
+-- if file is running with psql then run:
+\connect "dbname=retail_analytics user=retail_user"; 
+-- or simply create new connection with IDE tools
+
 /*                       === SESSION SETTINGS ===                     */
 
 DROP TABLE IF EXISTS retail_analitycs_config CASCADE;
@@ -9,30 +24,15 @@ CREATE TABLE retail_analitycs_config (
 );
 
 INSERT INTO retail_analitycs_config VALUES (
-    DEFAULT, 'data_path', '/Volumes/PortableSSD/School21 Projects/SQL2/src/data',
+    DEFAULT, 'data_path', '/Volumes/PortableSSD/School21_Projects/SQL2/src/data',
     'Absolute path to csv and tsv files directory which is used for import and export data');
 
-INSERT INTO retail_analitycs_config VALUES (
-    DEFAULT, 'date_style', 'ISO, DMY',
-    'DateStyle setting for import and export data');
 
-DROP PROCEDURE IF EXISTS apply_retail_analitycs_config CASCADE;
-CREATE OR REPLACE PROCEDURE apply_retail_analitycs_config(
-) AS $$
-BEGIN
-    EXECUTE 'SET datestyle TO ' || quote_literal((
-        SELECT setting
-        FROM retail_analitycs_config
-        WHERE name = 'date_style'));
-END $$
-LANGUAGE plpgsql;
-
-SELECT * FROM retail_analitycs_config;
 
 /*                     === TABLES MANIPULATION ===                    */
 
 DROP PROCEDURE IF EXISTS drop_tables CASCADE;
-CREATE OR REPLACE PROCEDURE drop_tables(
+CREATE PROCEDURE drop_tables(
 ) AS $$
 BEGIN
     DROP TABLE IF EXISTS personal_information CASCADE;
@@ -48,7 +48,7 @@ END $$
 LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS truncate_tables CASCADE;
-CREATE OR REPLACE PROCEDURE truncate_tables(
+CREATE PROCEDURE truncate_tables(
 ) AS $$
 BEGIN
     TRUNCATE TABLE personal_information RESTART IDENTITY CASCADE;
@@ -66,13 +66,12 @@ LANGUAGE plpgsql;
 /*                         === DATA EXPORT ===                        */
 
 DROP PROCEDURE IF EXISTS export_to_tsv CASCADE;
-CREATE OR REPLACE PROCEDURE export_to_tsv(
+CREATE PROCEDURE export_to_tsv(
     table_name      VARCHAR
 ) AS $$
 DECLARE file_name VARCHAR := (SELECT current_database()) 
     || '.' || table_name || ' shot ' || TO_CHAR(now(), 'YYYY-MM-DD at HH24:MI:SS.US') || '.tsv';
 BEGIN
-    CALL apply_retail_analitycs_config();
     EXECUTE FORMAT('COPY %s TO %s WITH DELIMITER AS E''\t''',
         quote_ident(table_name),  
         quote_literal(
@@ -82,13 +81,12 @@ END $$
 LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS export_to_csv CASCADE;
-CREATE OR REPLACE PROCEDURE export_to_csv(
+CREATE PROCEDURE export_to_csv(
     table_name      VARCHAR
 ) AS $$
 DECLARE file_name VARCHAR := (SELECT current_database()) 
     || '.' || table_name || ' shot ' || TO_CHAR(now(), 'YYYY-MM-DD at HH24:MI:SS.US') || '.csv';
 BEGIN
-    CALL apply_retail_analitycs_config();
     EXECUTE FORMAT('COPY %s TO %s WITH DELIMITER AS '',''',
         quote_ident(table_name),  
         quote_literal(
@@ -98,7 +96,7 @@ END $$
 LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS export(CHAR, VARCHAR) CASCADE;
-CREATE OR REPLACE PROCEDURE export(
+CREATE PROCEDURE export(
     mark            CHAR,
     table_name      VARCHAR
 ) AS $$
@@ -115,12 +113,11 @@ LANGUAGE plpgsql;
 /*                         === DATA IMPORT ===                        */
 
 DROP PROCEDURE IF EXISTS import_from_tsv(VARCHAR, VARCHAR) CASCADE;
-CREATE OR REPLACE PROCEDURE import_from_tsv(
+CREATE PROCEDURE import_from_tsv(
     table_name      VARCHAR,
     file_name       VARCHAR
 ) AS $$
 BEGIN
-    CALL apply_retail_analitycs_config();
     IF NOT (file_name SIMILAR TO '%.tsv') THEN
         RAISE 'Using import_from_tsv with wrong file extension'; END IF;
     EXECUTE FORMAT('COPY %s FROM %s WITH DELIMITER AS E''\t''',
@@ -132,7 +129,7 @@ END $$
 LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS import_from_tsv(VARCHAR) CASCADE;
-CREATE OR REPLACE PROCEDURE import_from_tsv(
+CREATE PROCEDURE import_from_tsv(
     table_name      VARCHAR
 ) AS $$
 BEGIN
@@ -141,12 +138,11 @@ END $$
 LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS import_from_csv(VARCHAR, VARCHAR) CASCADE;
-CREATE OR REPLACE PROCEDURE import_from_csv(
+CREATE PROCEDURE import_from_csv(
     table_name      VARCHAR,
     file_name       VARCHAR
 ) AS $$
 BEGIN
-    CALL apply_retail_analitycs_config();
     IF NOT (file_name SIMILAR TO '%.csv') THEN
         RAISE 'Using import_from_csv with wrong file extension'; END IF;
     EXECUTE FORMAT('COPY %s FROM %s WITH DELIMITER AS '',''',
@@ -158,7 +154,7 @@ END $$
 LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS import_from_csv(VARCHAR) CASCADE;
-CREATE OR REPLACE PROCEDURE import_from_csv(
+CREATE PROCEDURE import_from_csv(
     table_name      VARCHAR
 ) AS $$
 BEGIN
@@ -167,7 +163,7 @@ END $$
 LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS import(CHAR, VARCHAR, VARCHAR) CASCADE;
-CREATE OR REPLACE PROCEDURE import(
+CREATE PROCEDURE import(
     mark            CHAR,
     table_name      VARCHAR,
     file_name       VARCHAR
@@ -183,7 +179,7 @@ END $$
 LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS import(CHAR, VARCHAR) CASCADE;
-CREATE OR REPLACE PROCEDURE import(
+CREATE PROCEDURE import(
     mark            CHAR,
     table_name      VARCHAR
 ) AS $$
@@ -199,8 +195,27 @@ LANGUAGE plpgsql;
 
 /*                       === DEFAULT DATASETS ===                      */
 
+DROP PROCEDURE IF EXISTS setval_for_tables_sequences CASCADE;
+CREATE PROCEDURE setval_for_tables_sequences(
+) AS $$
+BEGIN
+    PERFORM setval('personal_information_customer_id_seq', 
+        (SELECT MAX(customer_id) FROM personal_information));
+    PERFORM setval('cards_card_id_seq', 
+        (SELECT MAX(card_id) FROM cards));
+    PERFORM setval('sku_groups_group_id_seq', 
+        (SELECT MAX(group_id) FROM sku_groups));
+    PERFORM setval('products_sku_id_seq', 
+        (SELECT MAX(sku_id) FROM products));
+    PERFORM setval('stores_store_id_seq', 
+        (SELECT MAX(store_id) FROM stores));
+    PERFORM setval('transactions_transaction_id_seq', 
+        (SELECT MAX(transaction_id) FROM transactions));
+END $$
+LANGUAGE plpgsql;
+
 DROP PROCEDURE IF EXISTS import_default_dataset CASCADE;
-CREATE OR REPLACE PROCEDURE import_default_dataset(
+CREATE PROCEDURE import_default_dataset(
 ) AS $$
 BEGIN
     CALL truncate_tables();
@@ -213,11 +228,12 @@ BEGIN
     CALL import(E'\t', 'transactions', '../../datasets/Transactions_Mini.tsv');
     CALL import(E'\t', 'checks', '../../datasets/Checks_Mini.tsv');
     CALL import(E'\t', 'date_of_analysis_formation', '../../datasets/Date_Of_Analysis_Formation.tsv');
+    CALL setval_for_tables_sequences();
 END $$
 LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS import_default_dataset_mini CASCADE;
-CREATE OR REPLACE PROCEDURE import_default_dataset_mini(
+CREATE PROCEDURE import_default_dataset_mini(
 ) AS $$
 BEGIN
     CALL truncate_tables();
@@ -230,11 +246,12 @@ BEGIN
     CALL import(E'\t', 'transactions', '../../datasets/Transactions_Mini.tsv');
     CALL import(E'\t', 'checks', '../../datasets/Checks_Mini.tsv');
     CALL import(E'\t', 'date_of_analysis_formation', '../../datasets/Date_Of_Analysis_Formation.tsv');
+    CALL setval_for_tables_sequences();
 END $$
 LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS import_custom_dataset CASCADE;
-CREATE OR REPLACE PROCEDURE import_custom_dataset(
+CREATE PROCEDURE import_custom_dataset(
 ) AS $$
 BEGIN
     CALL truncate_tables();
@@ -247,5 +264,6 @@ BEGIN
     CALL import(',', 'transactions');
     CALL import(',', 'checks');
     CALL import(',', 'date_of_analysis_formation');
+    CALL setval_for_tables_sequences();
 END $$
 LANGUAGE plpgsql;
