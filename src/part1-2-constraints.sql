@@ -1,3 +1,5 @@
+\connect "dbname=retail_analytics user=retail_user"; 
+
 DROP FUNCTION IF EXISTS contains_only_latin_letters_spaces_dashes CASCADE;
 CREATE FUNCTION contains_only_latin_letters_spaces_dashes (
     str VARCHAR, table_name VARCHAR, field_name VARCHAR )
