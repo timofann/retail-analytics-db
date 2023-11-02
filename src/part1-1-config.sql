@@ -23,9 +23,7 @@ CREATE TABLE retail_analitycs_config (
 );
 
 INSERT INTO retail_analitycs_config VALUES (
-    DEFAULT, 
-    'data_path', 
-    '/Volumes/PortableSSD/School21_Projects/SQL2/src/data',
+    DEFAULT, 'data_path', '/Volumes/PortableSSD/School21_Projects/SQL2/src/data',
     'Absolute path to csv and tsv files directory which is used for import and export data');
 
 /*                     === TABLES MANIPULATION ===                    */
