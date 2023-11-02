@@ -3,11 +3,10 @@
 CREATE USER retail_user SUPERUSER CREATEDB CREATEROLE;
 
 CREATE DATABASE retail_analytics
-    OWNER retail_user
-    TEMPLATE template0;
+    OWNER retail_user;
 
 ALTER DATABASE retail_analytics
-    SET datestyle TO 'ISO, DMY';
+    SET datestyle TO German;
 
 -- if file is running with psql then run:
 \connect "dbname=retail_analytics user=retail_user"; 
@@ -26,8 +25,6 @@ CREATE TABLE retail_analitycs_config (
 INSERT INTO retail_analitycs_config VALUES (
     DEFAULT, 'data_path', '/Volumes/PortableSSD/School21_Projects/SQL2/src/data',
     'Absolute path to csv and tsv files directory which is used for import and export data');
-
-
 
 /*                     === TABLES MANIPULATION ===                    */
 
@@ -199,17 +196,17 @@ DROP PROCEDURE IF EXISTS setval_for_tables_sequences CASCADE;
 CREATE PROCEDURE setval_for_tables_sequences(
 ) AS $$
 BEGIN
-    PERFORM setval('personal_information_customer_id_seq', 
+    PERFORM SETVAL('personal_information_customer_id_seq', 
         (SELECT MAX(customer_id) FROM personal_information));
-    PERFORM setval('cards_card_id_seq', 
+    PERFORM SETVAL('cards_card_id_seq', 
         (SELECT MAX(card_id) FROM cards));
-    PERFORM setval('sku_groups_group_id_seq', 
+    PERFORM SETVAL('sku_groups_group_id_seq', 
         (SELECT MAX(group_id) FROM sku_groups));
-    PERFORM setval('products_sku_id_seq', 
+    PERFORM SETVAL('products_sku_id_seq', 
         (SELECT MAX(sku_id) FROM products));
-    PERFORM setval('stores_store_id_seq', 
+    PERFORM SETVAL('stores_store_id_seq', 
         (SELECT MAX(store_id) FROM stores));
-    PERFORM setval('transactions_transaction_id_seq', 
+    PERFORM SETVAL('transactions_transaction_id_seq', 
         (SELECT MAX(transaction_id) FROM transactions));
 END $$
 LANGUAGE plpgsql;
