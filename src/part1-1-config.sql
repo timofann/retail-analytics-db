@@ -216,14 +216,14 @@ CREATE PROCEDURE import_default_dataset(
 ) AS $$
 BEGIN
     CALL truncate_tables();
-    CALL import(E'\t', 'personal_information', '../../datasets/Personal_Data_Mini.tsv');
-    CALL import(E'\t', 'cards', '../../datasets/Cards_Mini.tsv');
-    CALL import(E'\t', 'sku_groups', '../../datasets/Groups_SKU_Mini.tsv');
-    CALL import(E'\t', 'products', '../../datasets/SKU_Mini.tsv');
-    CALL import(E'\t', 'stores', '../../datasets/Unique_Stores_Mini.tsv');
-    CALL import(E'\t', 'stores_products', '../../datasets/Stores_Mini.tsv');
-    CALL import(E'\t', 'transactions', '../../datasets/Transactions_Mini.tsv');
-    CALL import(E'\t', 'checks', '../../datasets/Checks_Mini.tsv');
+    CALL import(E'\t', 'personal_information', '../../datasets/Personal_Data.tsv');
+    CALL import(E'\t', 'cards', '../../datasets/Cards.tsv');
+    CALL import(E'\t', 'sku_groups', '../../datasets/Groups_SKU.tsv');
+    CALL import(E'\t', 'products', '../../datasets/SKU.tsv');
+    CALL import(E'\t', 'stores', '../../datasets/Unique_Stores.tsv');
+    CALL import(E'\t', 'stores_products', '../../datasets/Stores.tsv');
+    CALL import(E'\t', 'transactions', '../../datasets/Transactions.tsv');
+    CALL import(E'\t', 'checks', '../../datasets/Checks.tsv');
     CALL import(E'\t', 'date_of_analysis_formation', '../../datasets/Date_Of_Analysis_Formation.tsv');
     CALL setval_for_tables_sequences();
 END $$
@@ -238,7 +238,7 @@ BEGIN
     CALL import(E'\t', 'cards', '../../datasets/Cards_Mini.tsv');
     CALL import(E'\t', 'sku_groups', '../../datasets/Groups_SKU_Mini.tsv');
     CALL import(E'\t', 'products', '../../datasets/SKU_Mini.tsv');
-    CALL import(E'\t', 'stores', '../../datasets/Unique_Stores_Mini.tsv');
+    CALL import(E'\t', 'stores', '../../datasets/Unique_Stores.tsv');
     CALL import(E'\t', 'stores_products', '../../datasets/Stores_Mini.tsv');
     CALL import(E'\t', 'transactions', '../../datasets/Transactions_Mini.tsv');
     CALL import(E'\t', 'checks', '../../datasets/Checks_Mini.tsv');
