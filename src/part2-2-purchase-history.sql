@@ -1,13 +1,11 @@
 \connect "dbname=retail_analytics user=retail_user";
 
-CALL import_default_dataset();
-
 DROP VIEW IF EXISTS purchase_history;
 CREATE OR REPLACE VIEW purchase_history AS
     SELECT 
         c.customer_id,
         t.transaction_id,
-        TO_CHAR(t.transaction_datetime, 'DD.MM.YYYYY HH:MM:SS.0000000'),
+        TO_CHAR(t.transaction_datetime, 'DD.MM.YYYY HH:MM:SS.0000000') AS transaction_datetime,
         p.group_id,
         SUM(sp.sku_purchase_price * ch.sku_amount) AS group_cost,
         SUM(ch.sku_summ) AS group_summ,
