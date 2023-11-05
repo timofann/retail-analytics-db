@@ -1,9 +1,13 @@
+\connect "dbname=retail_analytics user=retail_user";
+
+CALL import_default_dataset();
+
 DROP VIEW IF EXISTS purchase_history;
 CREATE OR REPLACE VIEW purchase_history AS
     SELECT 
         c.customer_id,
         t.transaction_id,
-        t.transaction_datetime,
+        TO_CHAR(t.transaction_datetime, 'DD.MM.YYYYY HH:MM:SS.0000000'),
         p.group_id,
         SUM(sp.sku_purchase_price * ch.sku_amount) AS group_cost,
         SUM(ch.sku_summ) AS group_summ,
@@ -17,17 +21,4 @@ CREATE OR REPLACE VIEW purchase_history AS
 
 
 -- TEST
-SELECT * FROM purchase_history;
-
--- -- show table columns
--- SELECT column_name, data_type
--- FROM information_schema.columns
--- WHERE table_schema = 'public' AND table_name = 'purchase_history';
-
--- show tables
-SELECT * FROM transactions;
-SELECT * FROM cards;
--- SELECT * FROM personal_information;
-SELECT * FROM checks;
-SELECT * FROM products;
--- SELECT * FROM stores_products;
+SELECT * FROM purchase_history ORDER BY customer_id ASC;
