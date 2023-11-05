@@ -1,43 +1,42 @@
+\connect "dbname=retail_analytics user=retail_user";
+
 DROP VIEW IF EXISTS periods;
+
 CREATE OR REPLACE VIEW periods AS
-    WITH min_sku_discount AS (
-        SELECT 
-            c.transaction_id,
-            MIN(c.sku_discount) AS min_discount,
-            p.group_id AS group_id
-        FROM checks as c
-        JOIN products AS p ON p.sku_id = c.sku_id
-        GROUP BY c.transaction_id, p.group_id
+    WITH
+    raw_data_for_periods AS (
+        SELECT t.transaction_id, customer_id, group_id, sku_discount, sku_summ, transaction_datetime
+        FROM checks JOIN
+            transactions t ON checks.transaction_id = t.transaction_id JOIN
+            products ON checks.sku_id = products.sku_id JOIN
+            cards ON cards.card_id = t.card_id
+    ),
+    transactions_count AS (
+        SELECT
+            customer_id,
+            group_id,
+            COUNT(transaction_id) AS group_purchase
+        FROM purchase_history
+        GROUP BY customer_id, group_id
     )
-    SELECT 
-        ph.customer_id,
-        ph.group_id,
-        min(ph.transaction_datetime) AS First_Group_Purchase_Date,
-        max(ph.transaction_datetime) AS Last_Group_Purchase_Date,
-        count(ph.transaction_id) AS Group_Purchase,
-        ((EXTRACT(DAY FROM (max(ph.transaction_datetime) - min(ph.transaction_datetime))) + 1) / count(ph.transaction_id)) AS Group_Frequency,
-        msd.min_discount
-    FROM purchase_history AS ph
-    JOIN (SELECT * FROM min_sku_discount) AS msd ON msd.transaction_id = ph.transaction_id AND msd.group_id = ph.group_id
-    GROUP BY ph.customer_id, ph.group_id, msd.min_discount
-
-
-
-
+    SELECT
+        rd.customer_id,
+        rd.group_id,
+        TO_CHAR(rd.first_group_purchase_date, 'DD.MM.YYYY HH:MM:SS.0000000') AS first_group_purchase_date,
+        TO_CHAR(rd.last_group_purchase_date, 'DD.MM.YYYY HH:MM:SS.0000000') AS last_group_purchase_date,
+        tc.group_purchase,
+        (rd.last_group_purchase_date::DATE - rd.first_group_purchase_date::DATE + 1)::NUMERIC / tc.group_purchase AS group_frequency,
+        group_min_discount
+    FROM (
+        SELECT
+            customer_id,
+            group_id,
+            MIN(transaction_datetime) AS first_group_purchase_date,
+            MAX(transaction_datetime) AS last_group_purchase_date,
+            MIN(sku_discount / sku_summ) AS group_min_discount
+        FROM raw_data_for_periods
+        GROUP BY customer_id, group_id) rd
+    JOIN transactions_count tc ON tc.customer_id = rd.customer_id AND tc.group_id = rd.group_id;
 
 -- TEST
 SELECT * FROM periods;
-
--- show table columns
-SELECT column_name, data_type
-FROM information_schema.columns
-WHERE table_schema = 'public' AND table_name = 'periods';
-
--- tables and views
-SELECT * FROM purchase_history;
-SELECT * FROM transactions;
-SELECT * FROM cards;
-SELECT * FROM personal_information;
-SELECT * FROM checks;
-SELECT * FROM products;
-SELECT * FROM stores_products WHERE ;
