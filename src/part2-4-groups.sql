@@ -5,22 +5,75 @@
 
 -- );
 
--- INSERT INTO retail_analitycs_config VALUES (
---     DEFAULT, 'groups_margin_calculation_method', 'by period',
---     'Two options are available: "by period" or "by number of transactions"');
+INSERT INTO retail_analitycs_config VALUES (
+    DEFAULT, 'groups_margin_calculation_method', 'by all transactions',
+    'Three options are available: "by period" or "by number of transactions" or "by all transactions" (default)');
 
 -- INSERT INTO retail_analitycs_config VALUES (
 --     DEFAULT, 'groups_margin_days_from_analysis_formation', '356',
---     'If the option "groups_margin_days_from_analysis_formation" is set to "by period"');
+--     'If the option "groups_margin_calculation_method" is set to "by period"');
 
 -- INSERT INTO retail_analitycs_config VALUES (
 --     DEFAULT, 'groups_margin_number_of_transactions', '5',
---     'If the option "groups_margin_days_from_analysis_formation" is set to "by number of transactions"');
+--     'If the option "groups_margin_calculation_method" is set to "by number of transactions"');
 
 
 
-CREATE FUNCTION get_groups_transactions() RETURNS TABLE
+CREATE OR REPLACE FUNCTION get_groups_transactions() 
+RETURNS TABLE (
+    customer_id             BIGINT,
+    transaction_id          BIGINT,
+    transaction_datetime    TIMESTAMP,
+    group_id                BIGINT
+) AS $$
+DECLARE
+    calculation_method VARCHAR := (
+        SELECT setting AS calculation_method
+        FROM retail_analitycs_config 
+        WHERE name = 'groups_margin_calculation_method' );
+    days_from_analysis_formation INT := (
+        SELECT setting::INT AS days_from_analysis_formation
+        FROM retail_analitycs_config
+        WHERE name = 'groups_margin_days_from_analysis_formation' );
+    number_of_transactions INT := (
+        SELECT setting::INT AS number_of_transactions
+        FROM retail_analitycs_config
+        WHERE name = 'groups_margin_number_of_transactions' );
+    last_date_by_period DATE := (
+        SELECT MAX(analysis_formation)::DATE - days_from_analysis_formation AS last_date_by_period
+        FROM date_of_analysis_formation
+    );
+BEGIN
+    IF calculation_method = 'by all transactions' THEN
+        RETURN QUERY (
+            SELECT h.customer_id, h.transaction_id, h.transaction_datetime::TIMESTAMP, h.group_id
+            FROM purchase_history h
+        );
+    ELSIF calculation_method = 'by period' THEN
+        RETURN QUERY (
+            SELECT customer_id, transaction_id, transaction_datetime, group_id
+            FROM purchase_history
+            WHERE transaction_datetime::TIMESTAMP >= last_date_by_period
+        );
+    ELSIF calculation_method = 'by number of transactions' THEN
+        RETURN QUERY (
+            SELECT customer_id, transaction_id, transaction_datetime, group_id
+            FROM (
+                SELECT customer_id, transaction_id, transaction_datetime, group_id,
+                    ROW_NUMBER() OVER (PARTITION BY customer_id, transaction_id ORDER BY transaction_datetime DESC) AS row_n
+                FROM purchase_history ) h
+            WHERE row_n <= number_of_transactions
+        );
+    ELSE
+        RAISE 'retail_analitycs_config.groups_margin_calculation_method should be set up correctly.';
+    END IF;
+END $$
+LANGUAGE plpgsql;
 
+SELECT * FROM retail_analitycs_config;
+SELECT * FROM date_of_analysis_formation;
+
+SELECT * FROM get_groups_transactions();
 
 
 
