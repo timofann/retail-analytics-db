@@ -122,10 +122,12 @@ transactions AS (
 ),
 general_transactions AS ( -- all transactions for groups inside the period of bying
     SELECT p.customer_id, p.group_id, COUNT(transaction_id) AS transactions_count
-    FROM periods p 
-    JOIN purchase_history h ON p.customer_id = h.customer_id AND p.group_id = h.group_id
-    WHERE 
-        transaction_datetime::TIMESTAMP >= first_group_purchase_date::TIMESTAMP AND 
+    FROM purchase_history ph
+    JOIN (
+        SELECT customer_id, group_id, first_group_purchase_date, last_group_purchase_date
+        FROM periods ) p
+    ON ph.customer_id = p.customer_id
+    WHERE transaction_datetime::TIMESTAMP >= first_group_purchase_date::TIMESTAMP AND
         transaction_datetime::TIMESTAMP <= last_group_purchase_date::TIMESTAMP
     GROUP BY p.customer_id, p.group_id
 ),
