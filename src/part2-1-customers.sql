@@ -5,19 +5,22 @@ CALL import_default_dataset_mini();
 
 -- Get last analysis date
 CREATE OR REPLACE FUNCTION get_last_analysis_date()
-RETURNS timestamp LANGUAGE plpgsql AS $$ 
+RETURNS TIMESTAMP
+AS $$ 
 BEGIN
     RETURN (
         SELECT max(analysis_formation) 
         FROM date_of_analysis_formation
     );
-END; $$;
+END; $$
+LANGUAGE plpgsql;
 
 -- Get interval between dates
 CREATE OR REPLACE FUNCTION get_interval_between_dates(
     init_date TIMESTAMPTZ, 
     stop_date TIMESTAMPTZ
-) RETURNS NUMERIC LANGUAGE plpgsql AS $$
+) RETURNS NUMERIC 
+AS $$
 DECLARE
     date_interval INTERVAL := init_date - stop_date;
 BEGIN
@@ -25,12 +28,14 @@ BEGIN
         + date_part('hour', date_interval)/24
         + date_part('minute', date_interval)/(24*60)
         + date_part('second', date_interval)/(24*60*60));
-END; $$;
+END; $$
+LANGUAGE plpgsql;
 
 -- Get primary store id
 CREATE OR REPLACE FUNCTION get_primary_store_id(
     target_customer_id BIGINT
-) RETURNS BIGINT LANGUAGE plpgsql AS $$
+) RETURNS BIGINT 
+AS $$
 BEGIN
     RETURN (
         WITH stat_stores AS (
@@ -63,31 +68,20 @@ BEGIN
         )
 
         SELECT CASE
-            WHEN (SELECT is_last_store FROM get_last_store last)
-            THEN (SELECT last_store_id FROM get_last_store last)
+            WHEN (SELECT is_last_store FROM get_last_store)
+            THEN (SELECT last_store_id FROM get_last_store)
             ELSE (SELECT popular_store_id FROM get_popular_store)
             END AS customer_primary_store_id
     );
+END; $$
+LANGUAGE plpgsql;
 
-  END;
-$$;
-
--- Customer_ID,
--- Customer_Average_Check,
--- Customer_Average_Check_Segment,
--- Customer_Frequency,
--- Customer_Frequency_Segment,
--- Customer_Inactive_Period,
--- Customer_Churn_Rate,
--- Customer_Churn_Segment)
--- Customer_Segment
--- Customer_Primary_Store)
 CREATE OR REPLACE VIEW Customers
 AS (
     WITH transaction_info_table AS (
         SELECT
             personal_information.customer_id,
-            COALESCE(AVG(t.transaction_summ::numeric), 0.0) AS customer_average_check,
+            COALESCE(AVG(t.transaction_summ::NUMERIC), 0.0) AS customer_average_check,
             get_interval_between_dates(
                 MIN(t.transaction_datetime), 
                 MAX(t.transaction_datetime)
@@ -98,7 +92,7 @@ AS (
             ) AS customer_inactive_period
         FROM personal_information
             LEFT JOIN cards ON personal_information.customer_id = cards.customer_id
-            LEFT JOIN transactions as t ON cards.card_id = t.card_id
+            LEFT JOIN transactions AS t ON cards.card_id = t.card_id
         GROUP BY personal_information.customer_id
     ),
 
