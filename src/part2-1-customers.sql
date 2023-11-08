@@ -133,8 +133,7 @@ AS (
                 WHEN customer_churn_rate <= 2 THEN 'Low'
                 WHEN customer_churn_rate <= 5 THEN 'Medium'
                 WHEN customer_churn_rate IS NULL THEN 'High'
-                ELSE 'High' END AS customer_churn_segment,
-            rank_frequency
+                ELSE 'High' END AS customer_churn_segment
         FROM rank_table
     )
 
@@ -159,8 +158,7 @@ AS (
             WHEN 'Low' THEN 1
             WHEN 'Medium' THEN 2
             ELSE 3 END AS customer_segment,
-        get_primary_store_id(t.customer_id) AS customer_primary_store,
-        t.rank_frequency
+        get_primary_store_id(t.customer_id) AS customer_primary_store
     FROM stat_segment t
     ORDER BY t.customer_id
 );  -- Customer view end
