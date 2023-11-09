@@ -1,9 +1,4 @@
--- \connect "dbname=retail_analytics user=retail_user";
-
--- DROP VIEW IF EXISTS groups;
--- CREATE OR REPLACE VIEW groups AS(
-
--- );
+\connect "dbname=retail_analytics user=retail_user";
 
 CREATE OR REPLACE FUNCTION get_calculation_method()
 RETURNS VARCHAR
@@ -16,7 +11,88 @@ BEGIN
 END $$
 LANGUAGE plpgsql;
 
-SELECT get_calculation_method();
+DROP VIEW IF EXISTS groups;
+CREATE OR REPLACE VIEW groups AS (
+    SELECT 
+        customer_id,
+        group_id,
+        group_transactions_count / general_transactions_count AS group_affinity_index,
+        (analysis_formation_epoch - last_group_purchase_epoch) / (60 * 60 * 24) AS group_churn_rate,
+        average_frequency_deviation / group_frequency AS group_stability_index,
+        group_margin,
+        discount_transactions_count / group_purchase AS group_discount_share,
+        group_min_discount AS group_minimum_discount
+    FROM (
+        SELECT 
+            customer_id,
+            group_id,
+            COUNT(transaction_id) FILTER (WHERE 
+                transaction_datetime <= last_group_purchase_date AND
+                transaction_datetime >= first_group_purchase_date)
+                AS general_transactions_count,
+            (COUNT(transaction_id) FILTER (WHERE
+                purchased_group_id = group_id))::NUMERIC 
+                AS group_transactions_count,
+            EXTRACT(EPOCH FROM MAX(analysis_formation) FILTER (WHERE 
+                row_n = 1)) AS analysis_formation_epoch,
+            EXTRACT(EPOCH FROM MAX(last_group_purchase_date) FILTER (WHERE 
+                row_n = 1)) AS last_group_purchase_epoch,
+            MAX(group_frequency) FILTER (WHERE row_n = 1) AS group_frequency,
+            AVG(ABS((next_transaction_epoch - current_transaction_epoch) / (60 * 60 * 24) - 
+                group_frequency)) FILTER (WHERE purchased_group_id = group_id)
+                AS average_frequency_deviation,
+            CASE
+                WHEN get_calculation_method() = 'by all transactions' THEN
+                    SUM(group_summ_paid - group_cost) FILTER (WHERE 
+                        purchased_group_id = group_id)
+                ELSE
+                    NULL
+                    -- RAISE 'You should set up /retail_analytics_config.tsv:groups_margin_calculation_method correctly.'
+                END AS group_margin,
+            (COUNT(transaction_id) FILTER (WHERE
+                purchased_group_id = group_id AND group_summ - group_summ_paid != 0)
+                )::NUMERIC AS discount_transactions_count,
+            MAX(group_purchase) FILTER (WHERE row_n = 1) AS group_purchase,
+            MAX(group_min_discount) FILTER (WHERE row_n = 1) AS group_min_discount,
+            AVG(group_summ_paid / group_summ) FILTER (WHERE
+                purchased_group_id = group_id AND group_summ - group_summ_paid != 0)
+                AS group_average_discount
+        FROM (
+            SELECT
+                ph.customer_id,
+                ph.transaction_id,
+                ph.transaction_datetime,
+                ph.group_id AS purchased_group_id,
+                EXTRACT(EPOCH FROM (ph.transaction_datetime)) AS current_transaction_epoch,
+                EXTRACT(EPOCH FROM (
+                    LAG(ph.transaction_datetime, -1) OVER purchase_intervals))
+                    AS next_transaction_epoch,
+                ph.group_summ_paid,
+                ph.group_cost,
+                ph.group_summ,
+                p.group_id,
+                p.group_frequency,
+                p.group_purchase,
+                p.first_group_purchase_date,
+                p.last_group_purchase_date,
+                p.group_min_discount,
+                ROW_NUMBER() OVER group_analysis AS row_n,
+                d.analysis_formation
+            FROM purchase_history ph
+            JOIN periods p ON ph.customer_id = p.customer_id
+            CROSS JOIN (
+                SELECT MAX(analysis_formation) AS analysis_formation
+                FROM date_of_analysis_formation ) d
+            WINDOW 
+                purchase_intervals AS (
+                    PARTITION BY ph.customer_id, ph.group_id, p.group_id ORDER BY ph.transaction_datetime),
+                group_analysis AS (
+                    PARTITION BY ph.customer_id, p.group_id ORDER BY ph.transaction_datetime)
+        ) accumulation
+        GROUP BY customer_id, group_id) grouped_accumulation
+);
+
+SELECT * FROM groups;
 
 -- DROP FUNCTION IF EXISTS get_groups_transactions;
 -- CREATE FUNCTION get_groups_transactions() 
@@ -84,84 +160,3 @@ SELECT get_calculation_method();
 --     END IF;
 -- END $$
 -- LANGUAGE plpgsql;
-
-
-CALL import_default_dataset();
-
-SELECT 
-    customer_id,
-    group_id,
-    group_transactions_count / general_transactions_count AS group_affinity_index,
-    (analysis_formation_epoch - last_group_purchase_epoch) / (60 * 60 * 24) AS group_churn_rate,
-    average_frequency_deviation / group_frequency AS group_stability_index,
-    group_margin,
-    discount_transactions_count / group_purchase AS group_discount_share,
-    group_min_discount AS group_minimum_discount
-FROM (
-    SELECT 
-        customer_id,
-        group_id,
-        COUNT(transaction_id) FILTER (WHERE 
-            transaction_datetime <= last_group_purchase_date AND
-            transaction_datetime >= first_group_purchase_date)
-            AS general_transactions_count,
-        (COUNT(transaction_id) FILTER (WHERE
-            purchased_group_id = group_id))::NUMERIC 
-            AS group_transactions_count,
-        EXTRACT(EPOCH FROM MAX(analysis_formation) FILTER (WHERE 
-            row_n = 1)) AS analysis_formation_epoch,
-        EXTRACT(EPOCH FROM MAX(last_group_purchase_date) FILTER (WHERE 
-            row_n = 1)) AS last_group_purchase_epoch,
-        MAX(group_frequency) FILTER (WHERE row_n = 1) AS group_frequency,
-        AVG(ABS((next_transaction_epoch - current_transaction_epoch) / (60 * 60 * 24) - 
-            group_frequency)) FILTER (WHERE purchased_group_id = group_id)
-            AS average_frequency_deviation,
-        CASE
-            WHEN get_calculation_method() = 'by all transactions' THEN
-                SUM(group_summ_paid - group_cost) FILTER (WHERE 
-                    purchased_group_id = group_id)
-            ELSE
-                NULL
-                -- RAISE 'You should set up /retail_analytics_config.tsv:groups_margin_calculation_method correctly.'
-            END AS group_margin,
-        (COUNT(transaction_id) FILTER (WHERE
-            purchased_group_id = group_id AND group_summ - group_summ_paid != 0)
-            )::NUMERIC AS discount_transactions_count,
-        MAX(group_purchase) FILTER (WHERE row_n = 1) AS group_purchase,
-        MAX(group_min_discount) FILTER (WHERE row_n = 1) AS group_min_discount,
-        AVG(group_summ_paid / group_summ) FILTER (WHERE
-            purchased_group_id = group_id AND group_summ - group_summ_paid != 0)
-            AS group_average_discount
-    FROM (
-        SELECT
-            ph.customer_id,
-            ph.transaction_id,
-            ph.transaction_datetime,
-            ph.group_id AS purchased_group_id,
-            EXTRACT(EPOCH FROM (ph.transaction_datetime)) AS current_transaction_epoch,
-            EXTRACT(EPOCH FROM (
-                LAG(ph.transaction_datetime, -1) OVER purchase_intervals))
-                AS next_transaction_epoch,
-            ph.group_summ_paid,
-            ph.group_cost,
-            ph.group_summ,
-            p.group_id,
-            p.group_frequency,
-            p.group_purchase,
-            p.first_group_purchase_date,
-            p.last_group_purchase_date,
-            p.group_min_discount,
-            ROW_NUMBER() OVER group_analysis AS row_n,
-            d.analysis_formation
-        FROM purchase_history ph
-        JOIN periods p ON ph.customer_id = p.customer_id
-        CROSS JOIN (
-            SELECT MAX(analysis_formation) AS analysis_formation
-            FROM date_of_analysis_formation ) d
-        WINDOW 
-            purchase_intervals AS (
-                PARTITION BY ph.customer_id, ph.group_id, p.group_id ORDER BY ph.transaction_datetime),
-            group_analysis AS (
-                PARTITION BY ph.customer_id, p.group_id ORDER BY ph.transaction_datetime)
-    ) accumulation
-    GROUP BY customer_id, group_id) grouped_accumulation;
