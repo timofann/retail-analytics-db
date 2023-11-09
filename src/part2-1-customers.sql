@@ -3,6 +3,11 @@
 
 CALL import_default_dataset_mini();
 
+DROP VIEW IF EXISTS Customers;
+DROP FUNCTION IF EXISTS get_primary_store_id;
+DROP FUNCTION IF EXISTS get_interval_between_dates;
+DROP FUNCTION IF EXISTS get_last_analysis_date;
+
 -- Get last analysis date
 CREATE OR REPLACE FUNCTION get_last_analysis_date()
 RETURNS TIMESTAMP

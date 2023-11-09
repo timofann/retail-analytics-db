@@ -15,7 +15,7 @@ END; $$
 LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION form_personal_offer_by_customer_frequency (
+CREATE OR REPLACE FUNCTION form_personal_offer_by_customer_frequency(
     start_date TIMESTAMPTZ, 
     end_date TIMESTAMPTZ,
     added_number_of_transactions BIGINT,
@@ -23,13 +23,25 @@ CREATE OR REPLACE FUNCTION form_personal_offer_by_customer_frequency (
     maximum_discount_share NUMERIC,
     acceptable_margin_share NUMERIC
 ) RETURNS TABLE (
-    customer_id INTEGER,
-    start_date TIMESTAMP,
-    end_date TIMESTAMP,
-    required_transactions_count NUMERIC,
-    group_name VARCHAR,
-    offer_discount_depth NUMERIC
+    Customer_Id INTEGER,
+    Start_Date TIMESTAMP,
+    End_Date TIMESTAMP,
+    Required_Transactions_Count NUMERIC,
+    Group_Name VARCHAR,
+    Offer_Discount_Depth NUMERIC
 )
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        customer.customer_id,
+        start_date,
+        end_date,
+        ROUND(get_interval_between_dates(start_date, end_date) / customer.customer_frequency) + added_number_of_transactions,
+        
+
+    
+END; $$
 
 
 period = get_interval_between_dates(start_date, end_date);
