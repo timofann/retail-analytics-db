@@ -1,22 +1,26 @@
+-- Connect to the database
 \connect "dbname=retail_analytics user=retail_user";
 
-CALL import_default_dataset();
+CALL import_default_dataset_mini();
 
 -- Get last analysis date
 CREATE OR REPLACE FUNCTION get_last_analysis_date()
-RETURNS timestamp LANGUAGE plpgsql AS $$ 
+RETURNS TIMESTAMP
+AS $$ 
 BEGIN
     RETURN (
         SELECT max(analysis_formation) 
         FROM date_of_analysis_formation
     );
-END; $$;
+END; $$
+LANGUAGE plpgsql;
 
 -- Get interval between dates
 CREATE OR REPLACE FUNCTION get_interval_between_dates(
     init_date TIMESTAMPTZ, 
     stop_date TIMESTAMPTZ
-) RETURNS NUMERIC LANGUAGE plpgsql AS $$
+) RETURNS NUMERIC 
+AS $$
 DECLARE
     date_interval INTERVAL := init_date - stop_date;
 BEGIN
@@ -24,12 +28,14 @@ BEGIN
         + date_part('hour', date_interval)/24
         + date_part('minute', date_interval)/(24*60)
         + date_part('second', date_interval)/(24*60*60));
-END; $$;
+END; $$
+LANGUAGE plpgsql;
 
 -- Get primary store id
 CREATE OR REPLACE FUNCTION get_primary_store_id(
     target_customer_id BIGINT
-) RETURNS BIGINT LANGUAGE plpgsql AS $$
+) RETURNS BIGINT 
+AS $$
 BEGIN
     RETURN (
         WITH stat_stores AS (
@@ -62,31 +68,20 @@ BEGIN
         )
 
         SELECT CASE
-            WHEN (SELECT is_last_store FROM get_last_store last)
-            THEN (SELECT last_store_id FROM get_last_store last)
+            WHEN (SELECT is_last_store FROM get_last_store)
+            THEN (SELECT last_store_id FROM get_last_store)
             ELSE (SELECT popular_store_id FROM get_popular_store)
             END AS customer_primary_store_id
     );
+END; $$
+LANGUAGE plpgsql;
 
-  END;
-$$;
-
--- Customer_ID,
--- Customer_Average_Check,
--- Customer_Average_Check_Segment,
--- Customer_Frequency,
--- Customer_Frequency_Segment,
--- Customer_Inactive_Period,
--- Customer_Churn_Rate,
--- Customer_Churn_Segment)
--- Customer_Segment
--- Customer_Primary_Store)
 CREATE OR REPLACE VIEW Customers
 AS (
     WITH transaction_info_table AS (
         SELECT
-            cards.customer_id,
-            AVG(t.transaction_summ::numeric) AS customer_average_check,
+            personal_information.customer_id,
+            COALESCE(AVG(t.transaction_summ::NUMERIC), 0.0) AS customer_average_check,
             get_interval_between_dates(
                 MIN(t.transaction_datetime), 
                 MAX(t.transaction_datetime)
@@ -96,18 +91,18 @@ AS (
                 get_last_analysis_date()
             ) AS customer_inactive_period
         FROM personal_information
-            JOIN cards ON personal_information.customer_id = cards.customer_id
-            JOIN transactions as t ON cards.card_id = t.card_id
-        GROUP BY cards.customer_id
+            LEFT JOIN cards ON personal_information.customer_id = cards.customer_id
+            LEFT JOIN transactions AS t ON cards.card_id = t.card_id
+        GROUP BY personal_information.customer_id
     ),
 
     rank_table AS (
         SELECT
             customer_id,
             customer_average_check,
-            CUME_DIST() OVER (ORDER BY customer_average_check) AS rank_check,
+            (ROW_NUMBER() OVER (ORDER BY customer_average_check DESC))::NUMERIC / (SELECT COUNT(*) FROM personal_information) AS rank_check,
             customer_frequency,
-            CUME_DIST() OVER (ORDER BY customer_frequency) AS rank_frequency,
+            (ROW_NUMBER() OVER (ORDER BY customer_frequency DESC))::NUMERIC / (SELECT COUNT(*) FROM personal_information) AS rank_frequency,
             customer_inactive_period,
             customer_inactive_period / customer_frequency AS customer_churn_rate
         FROM transaction_info_table
@@ -125,12 +120,13 @@ AS (
                 WHEN rank_check <= 0.35 THEN 'Medium'
                 ELSE 'Low' END AS customer_average_check_segment,
             CASE
-                WHEN rank_frequency <= 0.1 THEN 'Often'
-                WHEN rank_frequency <= 0.35 THEN 'Occasionally'
+                WHEN rank_frequency > 0.9 THEN 'Often'
+                WHEN rank_frequency > 0.65 THEN 'Occasionally'
                 ELSE 'Rarely' END AS customer_frequency_segment,
             CASE
                 WHEN customer_churn_rate <= 2 THEN 'Low'
                 WHEN customer_churn_rate <= 5 THEN 'Medium'
+                WHEN customer_churn_rate IS NULL THEN 'High'
                 ELSE 'High' END AS customer_churn_segment
         FROM rank_table
     )
