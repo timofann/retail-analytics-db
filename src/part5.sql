@@ -35,3 +35,4 @@ CREATE OR REPLACE FUNCTION form_personal_offer_by_customer_frequency (
 period = get_interval_between_dates(start_date, end_date);
 
 current_frequensy = period / SELECT customer_frequency FROM VIEW Customers;
+
