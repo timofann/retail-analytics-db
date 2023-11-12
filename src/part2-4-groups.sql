@@ -16,7 +16,7 @@ CREATE OR REPLACE VIEW groups AS (
     SELECT 
         customer_id,
         group_id,
-        group_transactions_count / general_transactions_count AS group_affinity_index,
+        group_transactions_count / NULLIF(general_transactions_count, 0) AS group_affinity_index,
         (analysis_formation_epoch - last_group_purchase_epoch) / (60 * 60 * 24) AS group_churn_rate,
         average_frequency_deviation / group_frequency AS group_stability_index,
         group_margin,
@@ -33,9 +33,9 @@ CREATE OR REPLACE VIEW groups AS (
             (COUNT(transaction_id) FILTER (WHERE
                 purchased_group_id = group_id))::NUMERIC 
                 AS group_transactions_count,
-            EXTRACT(EPOCH FROM MAX(analysis_formation) FILTER (WHERE 
+            EXTRACT(EPOCH FROM MAX(analysis_formation::TIMESTAMP) FILTER (WHERE 
                 row_n = 1)) AS analysis_formation_epoch,
-            EXTRACT(EPOCH FROM MAX(last_group_purchase_date) FILTER (WHERE 
+            EXTRACT(EPOCH FROM MAX(last_group_purchase_date::TIMESTAMP) FILTER (WHERE 
                 row_n = 1)) AS last_group_purchase_epoch,
             MAX(group_frequency) FILTER (WHERE row_n = 1) AS group_frequency,
             AVG(ABS((next_transaction_epoch - current_transaction_epoch) / (60 * 60 * 24) - 
@@ -63,9 +63,9 @@ CREATE OR REPLACE VIEW groups AS (
                 ph.transaction_id,
                 ph.transaction_datetime,
                 ph.group_id AS purchased_group_id,
-                EXTRACT(EPOCH FROM (ph.transaction_datetime)) AS current_transaction_epoch,
+                EXTRACT(EPOCH FROM (ph.transaction_datetime::TIMESTAMP)) AS current_transaction_epoch,
                 EXTRACT(EPOCH FROM (
-                    LAG(ph.transaction_datetime, -1) OVER purchase_intervals))
+                    LAG(ph.transaction_datetime, -1) OVER purchase_intervals)::TIMESTAMP)
                     AS next_transaction_epoch,
                 ph.group_summ_paid,
                 ph.group_cost,
