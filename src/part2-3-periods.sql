@@ -1,4 +1,4 @@
-\connect "dbname=retail_analytics user=retail_user";
+\connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 
 DROP VIEW IF EXISTS periods;
 
@@ -22,8 +22,8 @@ CREATE OR REPLACE VIEW periods AS
     SELECT
         rd.customer_id,
         rd.group_id,
-        TO_CHAR(rd.first_group_purchase_date, 'DD.MM.YYYY HH:MM:SS.0000000') AS first_group_purchase_date,
-        TO_CHAR(rd.last_group_purchase_date, 'DD.MM.YYYY HH:MM:SS.0000000') AS last_group_purchase_date,
+        rd.first_group_purchase_date,
+        rd.last_group_purchase_date, 
         tc.group_purchase,
         (rd.last_group_purchase_date::DATE - rd.first_group_purchase_date::DATE + 1)::NUMERIC / tc.group_purchase AS group_frequency,
         group_min_discount
@@ -37,6 +37,3 @@ CREATE OR REPLACE VIEW periods AS
         FROM raw_data_for_periods
         GROUP BY customer_id, group_id) rd
     JOIN transactions_count tc ON tc.customer_id = rd.customer_id AND tc.group_id = rd.group_id;
-
--- TEST
-SELECT * FROM periods;
