@@ -9,22 +9,24 @@ ALTER DATABASE retail_analytics
     SET datestyle TO German;
 
 -- if file is running with psql then run:
-\connect "dbname=retail_analytics user=retail_user"; 
+\connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 -- or simply create new connection with IDE tools
 
 /*                       === SESSION SETTINGS ===                     */
 
 DROP TABLE IF EXISTS retail_analitycs_config CASCADE;
 CREATE TABLE retail_analitycs_config (
-    id              BIGSERIAL PRIMARY KEY,
+    id              BIGINT PRIMARY KEY,
     name            VARCHAR NOT NULL UNIQUE,
     setting         VARCHAR NOT NULL,
     description     VARCHAR NOT NULL
 );
 
-INSERT INTO retail_analitycs_config VALUES (
-    DEFAULT, 'data_path', '/Volumes/PortableSSD/School21_Projects/SQL2/src/data',
-    'Absolute path to csv and tsv files directory which is used for import and export data');
+-- ───────────────────────────────────────────────────────────────── enter the path there ─┐
+INSERT INTO retail_analitycs_config VALUES (                                             --│
+    1, 'data_path', '/Volumes/PortableSSD/School21_Projects/SQL2/src/data',              --│
+    'Absolute path to directory which is used for import and export data' );             --│
+-- ────────────────────────────────────────────────────────────────────────────────────────┘
 
 /*                     === TABLES MANIPULATION ===                    */
 
@@ -264,3 +266,5 @@ BEGIN
     CALL setval_for_tables_sequences();
 END $$
 LANGUAGE plpgsql;
+
+CALL import_from_tsv('retail_analitycs_config');
