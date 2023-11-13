@@ -1,4 +1,4 @@
-\connect "dbname=retail_analytics user=retail_user"; 
+\connect -reuse-previous=on "dbname=retail_analytics user=retail_user"; 
 
 DROP FUNCTION IF EXISTS contains_only_letters_spaces_dashes CASCADE;
 CREATE FUNCTION contains_only_letters_spaces_dashes (

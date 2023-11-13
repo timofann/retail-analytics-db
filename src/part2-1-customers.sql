@@ -1,7 +1,5 @@
 -- Connect to the database
-\connect "dbname=retail_analytics user=retail_user";
-
-CALL import_default_dataset_mini();
+\connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 
 DROP VIEW IF EXISTS Customers;
 DROP FUNCTION IF EXISTS get_primary_store_id;

@@ -1,4 +1,4 @@
-\connect "dbname=retail_analytics user=retail_user"; 
+\connect -reuse-previous=on "dbname=retail_analytics user=retail_user"; 
 
 /*                           === NEW ROLES ===                         */
 
@@ -67,11 +67,11 @@ SELECT grantee.rolname as grantee, member.rolname as member, grantor.rolname as 
     LEFT JOIN pg_catalog.pg_roles grantor ON grantor.oid = grantor;
 \du;
 
-\connect "dbname=retail_analytics user=test_visitor";
+\connect -reuse-previous=on "dbname=retail_analytics user=test_visitor";
 INSERT INTO personal_information VALUES (DEFAULT, 'My', 'Regree', 'regree@student.21-school.ru', '+79288903035');
 SELECT * FROM personal_information;
 
-\connect "dbname=retail_analytics user=retail_user"; 
+\connect -reuse-previous=on "dbname=retail_analytics user=retail_user"; 
 REVOKE visitor FROM test_visitor;
 GRANT administrator TO test_visitor;
 
@@ -82,10 +82,10 @@ SELECT grantee.rolname as grantee, member.rolname as member, grantor.rolname as 
     LEFT JOIN pg_catalog.pg_roles grantor ON grantor.oid = grantor;
 \du;
 
-\connect "dbname=retail_analytics user=test_visitor";
+\connect -reuse-previous=on "dbname=retail_analytics user=test_visitor";
 INSERT INTO personal_information VALUES (DEFAULT, 'My', 'Regree', 'regree@student.21-school.ru', '+79288903035');
 SELECT * FROM personal_information;
 
-\connect "dbname=retail_analytics user=retail_user"; 
+\connect -reuse-previous=on "dbname=retail_analytics user=retail_user"; 
 REVOKE administrator FROM test_visitor;
 DELETE FROM personal_information WHERE customer_primary_email = 'regree@student.21-school.ru';

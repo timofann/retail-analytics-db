@@ -1,4 +1,4 @@
-\connect "dbname=retail_analytics user=retail_user"; 
+\connect -reuse-previous=on "dbname=retail_analytics user=retail_user"; 
 
 CALL drop_tables();
 
