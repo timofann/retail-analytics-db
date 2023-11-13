@@ -37,3 +37,5 @@ CREATE OR REPLACE VIEW periods AS
         FROM raw_data_for_periods
         GROUP BY customer_id, group_id) rd
     JOIN transactions_count tc ON tc.customer_id = rd.customer_id AND tc.group_id = rd.group_id;
+
+-- SELECT * FROM periods;

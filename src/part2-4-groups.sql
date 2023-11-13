@@ -146,3 +146,5 @@ CREATE VIEW groups AS (
         ) accumulation
         GROUP BY customer_id, group_id) grouped_accumulation
 );
+
+-- SELECT * FROM groups;

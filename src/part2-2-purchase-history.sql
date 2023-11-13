@@ -16,3 +16,5 @@ CREATE OR REPLACE VIEW purchase_history AS
     INNER JOIN products AS p ON p.sku_id = ch.sku_id
     INNER JOIN stores_products AS sp ON sp.sku_id = ch.sku_id AND sp.store_id = t.store_id
     GROUP BY c.customer_id, t.transaction_id, p.group_id;
+
+-- SELECT * FROM purchase_history;

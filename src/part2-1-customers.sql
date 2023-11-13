@@ -159,3 +159,5 @@ AS (
     FROM stat_segment t
     ORDER BY t.customer_id
 );  -- Customer view end
+
+-- SELECT * FROM customers;

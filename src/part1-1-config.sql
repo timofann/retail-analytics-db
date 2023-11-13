@@ -268,3 +268,4 @@ END $$
 LANGUAGE plpgsql;
 
 CALL import_from_tsv('retail_analitycs_config');
+-- SELECT * FROM retail_analitycs_config;
