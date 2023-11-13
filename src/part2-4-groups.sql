@@ -112,9 +112,9 @@ CREATE VIEW groups AS (
                 ph.transaction_id,
                 ph.transaction_datetime,
                 ph.group_id AS purchased_group_id,
-                EXTRACT(EPOCH FROM (ph.transaction_datetime)) AS current_transaction_epoch,
+                EXTRACT(EPOCH FROM (ph.transaction_datetime::TIMESTAMP)) AS current_transaction_epoch,
                 EXTRACT(EPOCH FROM (
-                    LAG(ph.transaction_datetime, -1) OVER purchase_intervals))
+                    LAG(ph.transaction_datetime, -1) OVER purchase_intervals)::TIMESTAMP)
                     AS next_transaction_epoch,
                 ph.group_summ_paid,
                 ph.group_cost,
