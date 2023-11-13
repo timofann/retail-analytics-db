@@ -12,7 +12,11 @@ GRANT ALL PRIVILEGES ON
     stores_products,
     transactions,
     checks,
-    date_of_analysis_formation
+    date_of_analysis_formation,
+    customers,
+    purchase_history,
+    periods,
+    groups
 TO administrator;
 GRANT USAGE, SELECT ON SEQUENCE 
     personal_information_customer_id_seq,
@@ -33,7 +37,11 @@ GRANT SELECT ON
     stores_products,
     transactions,
     checks,
-    date_of_analysis_formation
+    date_of_analysis_formation,
+    customers,
+    purchase_history,
+    periods,
+    groups
 TO visitor;
 
 /*                             === TEST ===                            */
@@ -50,42 +58,36 @@ SELECT grantee, table_name, privilege_type
 FROM information_schema.role_table_grants
 WHERE grantee = 'PUBLIC' AND table_schema = 'public';
 
--- union:
--- SELECT grantee, table_name, privilege_type
--- FROM information_schema.role_table_grants 
--- WHERE table_schema = 'public'
--- ORDER BY grantee;
+-- CREATE USER test_visitor;
 
-CREATE USER test_visitor;
+-- GRANT visitor TO test_visitor;
 
-GRANT visitor TO test_visitor;
+-- SELECT grantee.rolname as grantee, member.rolname as member, grantor.rolname as grantor
+--     FROM pg_catalog.pg_auth_members auth
+--     LEFT JOIN pg_catalog.pg_roles grantee ON grantee.oid = roleid
+--     LEFT JOIN pg_catalog.pg_roles member ON member.oid = member
+--     LEFT JOIN pg_catalog.pg_roles grantor ON grantor.oid = grantor;
+-- \du;
 
-SELECT grantee.rolname as grantee, member.rolname as member, grantor.rolname as grantor
-    FROM pg_catalog.pg_auth_members auth
-    LEFT JOIN pg_catalog.pg_roles grantee ON grantee.oid = roleid
-    LEFT JOIN pg_catalog.pg_roles member ON member.oid = member
-    LEFT JOIN pg_catalog.pg_roles grantor ON grantor.oid = grantor;
-\du;
+-- \connect -reuse-previous=on "dbname=retail_analytics user=test_visitor";
+-- INSERT INTO personal_information VALUES (DEFAULT, 'My', 'Regree', 'regree@student.21-school.ru', '+79288903035');
+-- SELECT * FROM personal_information;
 
-\connect -reuse-previous=on "dbname=retail_analytics user=test_visitor";
-INSERT INTO personal_information VALUES (DEFAULT, 'My', 'Regree', 'regree@student.21-school.ru', '+79288903035');
-SELECT * FROM personal_information;
+-- \connect -reuse-previous=on "dbname=retail_analytics user=retail_user"; 
+-- REVOKE visitor FROM test_visitor;
+-- GRANT administrator TO test_visitor;
 
-\connect -reuse-previous=on "dbname=retail_analytics user=retail_user"; 
-REVOKE visitor FROM test_visitor;
-GRANT administrator TO test_visitor;
+-- SELECT grantee.rolname as grantee, member.rolname as member, grantor.rolname as grantor
+--     FROM pg_catalog.pg_auth_members auth
+--     LEFT JOIN pg_catalog.pg_roles grantee ON grantee.oid = roleid
+--     LEFT JOIN pg_catalog.pg_roles member ON member.oid = member
+--     LEFT JOIN pg_catalog.pg_roles grantor ON grantor.oid = grantor;
+-- \du;
 
-SELECT grantee.rolname as grantee, member.rolname as member, grantor.rolname as grantor
-    FROM pg_catalog.pg_auth_members auth
-    LEFT JOIN pg_catalog.pg_roles grantee ON grantee.oid = roleid
-    LEFT JOIN pg_catalog.pg_roles member ON member.oid = member
-    LEFT JOIN pg_catalog.pg_roles grantor ON grantor.oid = grantor;
-\du;
+-- \connect -reuse-previous=on "dbname=retail_analytics user=test_visitor";
+-- INSERT INTO personal_information VALUES (DEFAULT, 'My', 'Regree', 'regree@student.21-school.ru', '+79288903035');
+-- SELECT * FROM personal_information;
 
-\connect -reuse-previous=on "dbname=retail_analytics user=test_visitor";
-INSERT INTO personal_information VALUES (DEFAULT, 'My', 'Regree', 'regree@student.21-school.ru', '+79288903035');
-SELECT * FROM personal_information;
-
-\connect -reuse-previous=on "dbname=retail_analytics user=retail_user"; 
-REVOKE administrator FROM test_visitor;
-DELETE FROM personal_information WHERE customer_primary_email = 'regree@student.21-school.ru';
+-- \connect -reuse-previous=on "dbname=retail_analytics user=retail_user"; 
+-- REVOKE administrator FROM test_visitor;
+-- DELETE FROM personal_information WHERE customer_primary_email = 'regree@student.21-school.ru';
