@@ -168,8 +168,6 @@ CREATE TABLE date_of_analysis_formation (
 /*                         === DATA EXPORT ===                        */
 
 INSERT INTO personal_information VALUES (DEFAULT, 'My', 'Regree', 'regree@student.21-school.ru', '+79288903035');
-SELECT * FROM personal_information;
-SELECT * FROM retail_analitycs_config;
 CALL export_to_csv('personal_information');
 CALL export_to_tsv('personal_information');
 
