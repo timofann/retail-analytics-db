@@ -39,22 +39,22 @@ BEGIN
         
             stat_stores AS (
                 SELECT
-                    t.store_id,
+                    t.transaction_store_id,
                     COUNT(*) OVER w1 AS visits_count,
                     MAX(t.transaction_datetime) OVER w1 AS last_visit_date,
                     ROW_NUMBER() OVER w2 AS store_rank
                 FROM personal_information p
                     JOIN cards c ON p.customer_id = c.customer_id
-                    JOIN transactions t ON c.card_id = t.card_id
+                    JOIN transactions t ON c.customer_card_id = t.customer_card_id
                 WHERE t.transaction_datetime <= get_last_analysis_date()
                     AND p.customer_id = target_customer_id
-                WINDOW w1 AS (PARTITION BY t.store_id),
+                WINDOW w1 AS (PARTITION BY t.transaction_store_id),
                     w2 AS (ORDER BY t.transaction_datetime DESC)
             ),
 
             get_popular_store AS (
                 SELECT DISTINCT
-                    FIRST_VALUE(store_id) OVER (
+                    FIRST_VALUE(transaction_store_id) OVER (
                         ORDER BY visits_count DESC, last_visit_date DESC)
                         AS popular_store_id
                 FROM stat_stores
@@ -62,8 +62,8 @@ BEGIN
 
             get_last_store AS (
                 SELECT DISTINCT
-                    MAX(store_id) AS last_store_id,
-                    MAX(store_id) = MIN(store_id) AS is_last_store
+                    MAX(transaction_store_id) AS last_store_id,
+                    MAX(transaction_store_id) = MIN(transaction_store_id) AS is_last_store
                 FROM stat_stores
                 WHERE store_rank <= 3
             )
@@ -95,7 +95,7 @@ CREATE VIEW customers AS
                 ) AS customer_inactive_period
             FROM personal_information
                 LEFT JOIN cards ON personal_information.customer_id = cards.customer_id
-                LEFT JOIN transactions AS t ON cards.card_id = t.card_id
+                LEFT JOIN transactions AS t ON cards.customer_card_id = t.customer_card_id
             GROUP BY personal_information.customer_id
         ),
 

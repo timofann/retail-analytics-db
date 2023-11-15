@@ -200,8 +200,8 @@ CREATE PROCEDURE setval_for_tables_sequences(
 BEGIN
     PERFORM SETVAL('personal_information_customer_id_seq',
         (SELECT MAX(customer_id) FROM personal_information));
-    PERFORM SETVAL('cards_card_id_seq',
-        (SELECT MAX(card_id) FROM cards));
+    PERFORM SETVAL('cards_customer_card_id_seq',
+        (SELECT MAX(customer_card_id) FROM cards));
     PERFORM SETVAL('sku_group_group_id_seq',
         (SELECT MAX(group_id) FROM sku_group));
     PERFORM SETVAL('product_grid_sku_id_seq',

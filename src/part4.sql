@@ -42,10 +42,10 @@ BEGIN
                     SUM(t.transaction_summ) / COUNT(t.transaction_id) * increasing_coeff
                         AS required_check_measure
                 FROM (
-                    SELECT transaction_id, card_id, transaction_summ
+                    SELECT transaction_id, customer_card_id, transaction_summ
                     FROM transactions 
                     WHERE transaction_datetime BETWEEN first_date AND last_date ) t
-                LEFT JOIN cards c on t.card_id = c.card_id
+                LEFT JOIN cards c on t.customer_card_id = c.customer_card_id
                 GROUP BY c.customer_id
             ),
 
@@ -111,7 +111,7 @@ BEGIN
                     c.customer_id,
                     ROW_NUMBER() OVER transactions_chronological_windiow AS row_n
                 FROM transactions t
-                LEFT JOIN cards c ON t.card_id = c.card_id
+                LEFT JOIN cards c ON t.customer_card_id = c.customer_card_id
                 WINDOW transactions_chronological_windiow AS (
                     PARTITION BY c.customer_id ORDER BY t.transaction_datetime DESC )
             ),

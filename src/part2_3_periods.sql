@@ -9,7 +9,7 @@ CREATE VIEW periods AS
             FROM checks
             LEFT JOIN transactions t ON checks.transaction_id = t.transaction_id
             LEFT JOIN product_grid p ON checks.sku_id = p.sku_id
-            LEFT JOIN cards ON cards.card_id = t.card_id
+            LEFT JOIN cards ON cards.customer_card_id = t.customer_card_id
         ),
 
         transactions_count AS (

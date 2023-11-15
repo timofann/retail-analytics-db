@@ -12,9 +12,9 @@ CREATE OR REPLACE VIEW purchase_history AS
         SUM(ch.sku_summ_paid) AS group_summ_paid
     FROM checks AS ch 
     LEFT JOIN transactions AS t ON ch.transaction_id = t.transaction_id
-    LEFT JOIN cards AS c ON c.card_id = t.card_id
+    LEFT JOIN cards AS c ON c.customer_card_id = t.customer_card_id
     LEFT JOIN product_grid AS p ON p.sku_id = ch.sku_id
-    LEFT JOIN stores AS s ON s.sku_id = ch.sku_id AND s.store_id = t.store_id
+    LEFT JOIN stores AS s ON s.sku_id = ch.sku_id AND s.transaction_store_id = t.transaction_store_id
     GROUP BY c.customer_id, t.transaction_id, p.group_id;
 
 -- SELECT * FROM purchase_history;

@@ -20,7 +20,7 @@ GRANT ALL PRIVILEGES ON
 TO administrator;
 GRANT USAGE, SELECT ON SEQUENCE 
     personal_information_customer_id_seq,
-    cards_card_id_seq,
+    cards_customer_card_id_seq,
     product_grid_sku_id_seq,
     sku_group_group_id_seq,
     unique_stores_store_id_seq,

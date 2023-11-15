@@ -46,7 +46,7 @@ CREATE TABLE personal_information (
                   - one customer can own several cards                 */
 
 CREATE TABLE cards (
-    card_id                 BIGSERIAL PRIMARY KEY,
+    customer_card_id        BIGSERIAL PRIMARY KEY,
     customer_id             BIGINT,
     CONSTRAINT customer_id_foreign_key
         FOREIGN KEY (customer_id) REFERENCES personal_information(customer_id)
@@ -87,9 +87,9 @@ CREATE TABLE unique_stores (
            - the sale price of the product excluding discounts         */
 
 CREATE TABLE stores (
-    store_id                BIGINT,
-    CONSTRAINT store_id
-        FOREIGN KEY (store_id) REFERENCES unique_stores(store_id),
+    transaction_store_id    BIGINT,
+    CONSTRAINT store_id_foreign_key
+        FOREIGN KEY (transaction_store_id) REFERENCES unique_stores(store_id),
     sku_id                  BIGINT,
     CONSTRAINT sku_id_foreign_key
         FOREIGN KEY (sku_id) REFERENCES product_grid(sku_id),
@@ -99,7 +99,7 @@ CREATE TABLE stores (
         CHECK (sku_purchase_price > 0.0 AND
                sku_retail_price > 0.0),
     CONSTRAINT store_primary_key 
-        PRIMARY KEY (store_id, sku_id)
+        PRIMARY KEY (transaction_store_id, sku_id)
 );
 
 /*           ============  Transactions Table  ============ 
@@ -112,16 +112,16 @@ CREATE TABLE stores (
 
 CREATE TABLE transactions (
     transaction_id          BIGSERIAL PRIMARY KEY,
-    card_id                 BIGINT,
+    customer_card_id        BIGINT,
     CONSTRAINT card_id_foreign_key 
-        FOREIGN KEY (card_id) REFERENCES cards(card_id),
+        FOREIGN KEY (customer_card_id) REFERENCES cards(customer_card_id),
     transaction_summ        NUMERIC,
     CONSTRAINT transaction_summ_is_positive
         CHECK (transaction_summ > 0.0),
     transaction_datetime    TIMESTAMP,
-    store_id                BIGINT,
+    transaction_store_id    BIGINT,
     CONSTRAINT store_id_foreign_key
-        FOREIGN KEY (store_id) REFERENCES unique_stores(store_id)
+        FOREIGN KEY (transaction_store_id) REFERENCES unique_stores(store_id)
 );
 
 /*  =========================  Checks Table  ========================= 
@@ -187,7 +187,7 @@ CALL export_to_tsv('personal_information');
 
 -- SELECT setval('personal_information_customer_id_seq', 
 --     (SELECT MAX(customer_id) FROM personal_information));
--- SELECT SETVAL('cards_card_id_seq', 
+-- SELECT SETVAL('cards_customer_card_id_seq', 
 --     (SELECT MAX(card_id) FROM cards));
 -- SELECT SETVAL('sku_group_group_id_seq', 
 --     (SELECT MAX(group_id) FROM sku_group));

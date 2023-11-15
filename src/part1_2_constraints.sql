@@ -105,10 +105,10 @@ AS $$
 BEGIN
     IF (
         SELECT (
-            SELECT COUNT(store_id)
+            SELECT COUNT(transaction_store_id)
             FROM stores
-            WHERE store_id = (
-                SELECT store_id
+            WHERE transaction_store_id = (
+                SELECT transaction_store_id
                 FROM transactions
                 WHERE transaction_id = NEW.transaction_id) AND
                   sku_id = NEW.sku_id) = 0 )
