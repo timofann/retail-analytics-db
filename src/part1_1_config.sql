@@ -36,10 +36,10 @@ CREATE PROCEDURE drop_tables(
 BEGIN
     DROP TABLE IF EXISTS personal_information CASCADE;
     DROP TABLE IF EXISTS cards CASCADE;
-    DROP TABLE IF EXISTS sku_groups CASCADE;
-    DROP TABLE IF EXISTS products CASCADE;
+    DROP TABLE IF EXISTS sku_group CASCADE;
+    DROP TABLE IF EXISTS product_grid CASCADE;
+    DROP TABLE IF EXISTS unique_stores CASCADE;
     DROP TABLE IF EXISTS stores CASCADE;
-    DROP TABLE IF EXISTS stores_products CASCADE;
     DROP TABLE IF EXISTS transactions CASCADE;
     DROP TABLE IF EXISTS checks CASCADE;
     DROP TABLE IF EXISTS date_of_analysis_formation CASCADE;
@@ -52,10 +52,10 @@ CREATE PROCEDURE truncate_tables(
 BEGIN
     TRUNCATE TABLE personal_information RESTART IDENTITY CASCADE;
     TRUNCATE TABLE cards RESTART IDENTITY CASCADE;
-    TRUNCATE TABLE sku_groups RESTART IDENTITY CASCADE;
-    TRUNCATE TABLE products RESTART IDENTITY CASCADE;
+    TRUNCATE TABLE sku_group RESTART IDENTITY CASCADE;
+    TRUNCATE TABLE product_grid RESTART IDENTITY CASCADE;
+    TRUNCATE TABLE unique_stores RESTART IDENTITY CASCADE;
     TRUNCATE TABLE stores RESTART IDENTITY CASCADE;
-    TRUNCATE TABLE stores_products RESTART IDENTITY CASCADE;
     TRUNCATE TABLE transactions RESTART IDENTITY CASCADE;
     TRUNCATE TABLE checks RESTART IDENTITY CASCADE;
     TRUNCATE TABLE date_of_analysis_formation RESTART IDENTITY CASCADE;
@@ -198,16 +198,16 @@ DROP PROCEDURE IF EXISTS setval_for_tables_sequences CASCADE;
 CREATE PROCEDURE setval_for_tables_sequences(
 ) AS $$
 BEGIN
-    PERFORM SETVAL('personal_information_customer_id_seq', 
+    PERFORM SETVAL('personal_information_customer_id_seq',
         (SELECT MAX(customer_id) FROM personal_information));
-    PERFORM SETVAL('cards_card_id_seq', 
+    PERFORM SETVAL('cards_card_id_seq',
         (SELECT MAX(card_id) FROM cards));
-    PERFORM SETVAL('sku_groups_group_id_seq', 
-        (SELECT MAX(group_id) FROM sku_groups));
-    PERFORM SETVAL('products_sku_id_seq', 
-        (SELECT MAX(sku_id) FROM products));
-    PERFORM SETVAL('stores_store_id_seq', 
-        (SELECT MAX(store_id) FROM stores));
+    PERFORM SETVAL('sku_group_group_id_seq',
+        (SELECT MAX(group_id) FROM sku_group));
+    PERFORM SETVAL('product_grid_sku_id_seq',
+        (SELECT MAX(sku_id) FROM product_grid));
+    PERFORM SETVAL('unique_stores_store_id_seq',
+        (SELECT MAX(store_id) FROM unique_stores));
     PERFORM SETVAL('transactions_transaction_id_seq', 
         (SELECT MAX(transaction_id) FROM transactions));
 END $$
@@ -220,10 +220,10 @@ BEGIN
     CALL truncate_tables();
     CALL import(E'\t', 'personal_information', '../../datasets/Personal_Data.tsv');
     CALL import(E'\t', 'cards', '../../datasets/Cards.tsv');
-    CALL import(E'\t', 'sku_groups', '../../datasets/Groups_SKU.tsv');
-    CALL import(E'\t', 'products', '../../datasets/SKU.tsv');
-    CALL import(E'\t', 'stores', '../../datasets/Unique_Stores.tsv');
-    CALL import(E'\t', 'stores_products', '../../datasets/Stores.tsv');
+    CALL import(E'\t', 'sku_group', '../../datasets/Groups_SKU.tsv');
+    CALL import(E'\t', 'product_grid', '../../datasets/SKU.tsv');
+    CALL import(E'\t', 'unique_stores', '../../datasets/Unique_Stores.tsv');
+    CALL import(E'\t', 'stores', '../../datasets/Stores.tsv');
     CALL import(E'\t', 'transactions', '../../datasets/Transactions.tsv');
     CALL import(E'\t', 'checks', '../../datasets/Checks.tsv');
     CALL import(E'\t', 'date_of_analysis_formation', '../../datasets/Date_Of_Analysis_Formation.tsv');
@@ -238,10 +238,10 @@ BEGIN
     CALL truncate_tables();
     CALL import(E'\t', 'personal_information', '../../datasets/Personal_Data_Mini.tsv');
     CALL import(E'\t', 'cards', '../../datasets/Cards_Mini.tsv');
-    CALL import(E'\t', 'sku_groups', '../../datasets/Groups_SKU_Mini.tsv');
-    CALL import(E'\t', 'products', '../../datasets/SKU_Mini.tsv');
-    CALL import(E'\t', 'stores', '../../datasets/Unique_Stores.tsv');
-    CALL import(E'\t', 'stores_products', '../../datasets/Stores_Mini.tsv');
+    CALL import(E'\t', 'sku_group', '../../datasets/Groups_SKU_Mini.tsv');
+    CALL import(E'\t', 'product_grid', '../../datasets/SKU_Mini.tsv');
+    CALL import(E'\t', 'unique_stores', '../../datasets/Unique_Stores.tsv');
+    CALL import(E'\t', 'stores', '../../datasets/Stores_Mini.tsv');
     CALL import(E'\t', 'transactions', '../../datasets/Transactions_Mini.tsv');
     CALL import(E'\t', 'checks', '../../datasets/Checks_Mini.tsv');
     CALL import(E'\t', 'date_of_analysis_formation', '../../datasets/Date_Of_Analysis_Formation.tsv');
@@ -256,10 +256,10 @@ BEGIN
     CALL truncate_tables();
     CALL import(',', 'personal_information');
     CALL import(',', 'cards');
-    CALL import(',', 'sku_groups');
-    CALL import(',', 'products');
+    CALL import(',', 'sku_group');
+    CALL import(',', 'product_grid');
+    CALL import(',', 'unique_stores');
     CALL import(',', 'stores');
-    CALL import(',', 'stores_products');
     CALL import(',', 'transactions');
     CALL import(',', 'checks');
     CALL import(',', 'date_of_analysis_formation');

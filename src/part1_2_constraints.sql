@@ -106,7 +106,7 @@ BEGIN
     IF (
         SELECT (
             SELECT COUNT(store_id)
-            FROM stores_products
+            FROM stores
             WHERE store_id = (
                 SELECT store_id
                 FROM transactions

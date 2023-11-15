@@ -6,10 +6,10 @@ CREATE ROLE administrator SUPERUSER;
 GRANT ALL PRIVILEGES ON
     personal_information,
     cards,
-    sku_groups,
-    products,
+    sku_group,
+    product_grid,
+    unique_stores,
     stores,
-    stores_products,
     transactions,
     checks,
     date_of_analysis_formation,
@@ -21,9 +21,9 @@ TO administrator;
 GRANT USAGE, SELECT ON SEQUENCE 
     personal_information_customer_id_seq,
     cards_card_id_seq,
-    products_sku_id_seq,
-    sku_groups_group_id_seq,
-    stores_store_id_seq,
+    product_grid_sku_id_seq,
+    sku_group_group_id_seq,
+    unique_stores_store_id_seq,
     transactions_transaction_id_seq
 TO administrator;
 
@@ -31,10 +31,10 @@ CREATE ROLE visitor;
 GRANT SELECT ON
     personal_information,
     cards,
-    sku_groups,
-    products,
+    sku_group,
+    product_grid,
+    unique_stores,
     stores,
-    stores_products,
     transactions,
     checks,
     date_of_analysis_formation,

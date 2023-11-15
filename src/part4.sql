@@ -73,11 +73,11 @@ BEGIN
         LEFT JOIN (
             SELECT * FROM allowable_groups WHERE rating = 1 ) g 
             ON i.customer_id = g.customer_id
-        LEFT JOIN sku_groups s ON g.group_id = s.group_id );
+        LEFT JOIN sku_group s ON g.group_id = s.group_id );
 END; $$
 LANGUAGE plpgsql;
 
-SELECT * FROM get_offers_to_increase_the_average_check(1, '21.12.2021', '21.12.2022', 1.5, 1000, 101, 1.2);
+-- SELECT * FROM get_offers_to_increase_the_average_check(1, '21.12.2021', '21.12.2022', 1.5, 1000, 101, 1.2);
 
 DROP FUNCTION IF EXISTS get_offers_to_increase_the_average_check(
     INT, BIGINT, NUMERIC, NUMERIC, NUMERIC, NUMERIC) CASCADE;
@@ -150,8 +150,8 @@ BEGIN
         LEFT JOIN (
             SELECT * FROM allowable_groups WHERE rating = 1 ) g 
             ON i.customer_id = g.customer_id
-        LEFT JOIN sku_groups s ON g.group_id = s.group_id );
+        LEFT JOIN sku_group s ON g.group_id = s.group_id );
 END; $$
 LANGUAGE plpgsql;
 
-SELECT * FROM get_offers_to_increase_the_average_check(2, 5, 1.5, 1000, 101, 1.2);
+-- SELECT * FROM get_offers_to_increase_the_average_check(2, 5, 1.5, 1000, 101, 1.2);

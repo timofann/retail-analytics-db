@@ -7,24 +7,32 @@ DROP USER IF EXISTS retail_user;
 -- REVOKE ALL PRIVILEGES ON
 --     personal_information,
 --     cards,
---     sku_groups,
---     products,
+--     sku_group,
+--     product_grid,
+--     unique_stores,
 --     stores,
---     stores_products,
 --     transactions,
 --     checks,
---     date_of_analysis_formation
+--     date_of_analysis_formation,
+--     customers,
+--     purchase_history,
+--     periods,
+--     groups
 -- FROM administrator;
 -- REVOKE ALL PRIVILEGES ON
 --     personal_information,
 --     cards,
---     sku_groups,
---     products,
+--     sku_group,
+--     product_grid,
+--     unique_stores,
 --     stores,
---     stores_products,
 --     transactions,
 --     checks,
---     date_of_analysis_formation
+--     date_of_analysis_formation,
+--     customers,
+--     purchase_history,
+--     periods,
+--     groups
 -- FROM visitor;
 
 DROP ROLE visitor;

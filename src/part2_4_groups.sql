@@ -52,7 +52,7 @@ END $$
 LANGUAGE plpgsql;
 
 DROP VIEW IF EXISTS groups;
-CREATE VIEW groups AS (
+CREATE VIEW groups AS
     SELECT 
         customer_id,
         group_id,
@@ -144,7 +144,6 @@ CREATE VIEW groups AS (
                     PARTITION BY ph.customer_id, ph.group_id, p.group_id 
                     ORDER BY ph.transaction_datetime DESC)
         ) accumulation
-        GROUP BY customer_id, group_id) grouped_accumulation
-);
+        GROUP BY customer_id, group_id) grouped_accumulation;
 
 -- SELECT * FROM groups;
