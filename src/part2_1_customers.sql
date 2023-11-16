@@ -83,7 +83,7 @@ CREATE VIEW customers AS
 
         transaction_info_table AS (
             SELECT
-                personal_information.customer_id,
+                cards.customer_id,
                 COALESCE(AVG(t.transaction_summ::NUMERIC), 0.0) AS customer_average_check,
                 get_interval_between_dates(
                     MIN(t.transaction_datetime), 
@@ -93,10 +93,9 @@ CREATE VIEW customers AS
                     MAX(t.transaction_datetime), 
                     get_last_analysis_date()
                 ) AS customer_inactive_period
-            FROM personal_information
-                LEFT JOIN cards ON personal_information.customer_id = cards.customer_id
+            FROM cards
                 LEFT JOIN transactions AS t ON cards.customer_card_id = t.customer_card_id
-            GROUP BY personal_information.customer_id
+            GROUP BY cards.customer_id
         ),
 
         rank_table AS (
@@ -104,14 +103,16 @@ CREATE VIEW customers AS
                 customer_id,
                 customer_average_check,
                 (ROW_NUMBER() OVER (ORDER BY customer_average_check DESC))::NUMERIC / 
-                    (SELECT COUNT(*) FROM personal_information) AS rank_check,
+                    (SELECT COUNT(*) FROM transaction_info_table) AS rank_check,
                 customer_frequency,
                 (ROW_NUMBER() OVER (ORDER BY customer_frequency DESC))::NUMERIC / 
-                    (SELECT COUNT(*) FROM personal_information) AS rank_frequency,
+                    (SELECT COUNT(*) FROM transaction_info_table) AS rank_frequency,
+                COUNT(customer_id) OVER
                 customer_inactive_period,
                 customer_inactive_period / customer_frequency AS customer_churn_rate
             FROM transaction_info_table
-        ),
+        )
+        SELECT * FROM rank_table
 
         stat_segment AS (
             SELECT
