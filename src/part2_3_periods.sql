@@ -28,7 +28,7 @@ CREATE VIEW periods AS
         rd.last_group_purchase_date, 
         tc.group_purchase::NUMERIC,
         (EXTRACT(EPOCH FROM rd.last_group_purchase_date - rd.first_group_purchase_date)::NUMERIC /
-            (24*60*60) + 1) / tc.group_purchase AS group_frequency,
+            (24 * 60 * 60) + 1) / tc.group_purchase AS group_frequency,
         COALESCE(rd.group_min_discount, 0)::NUMERIC AS group_min_discount
     FROM (
         SELECT
