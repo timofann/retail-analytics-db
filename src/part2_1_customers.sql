@@ -19,14 +19,12 @@ CREATE FUNCTION get_interval_between_dates(
 ) RETURNS NUMERIC 
 AS $$
 DECLARE
-    date_interval INTERVAL := init_date - stop_date;
+    _period NUMERIC;
 BEGIN
-    RETURN ABS(date_part('day', date_interval)
-        + date_part('hour', date_interval)/24
-        + date_part('minute', date_interval)/(24*60)
-        + date_part('second', date_interval)/(24*60*60));
+    _period := EXTRACT(EPOCH FROM (stop_date-init_date))::NUMERIC / (24 * 60 * 60);
+    RETURN _period;
 END; $$
-LANGUAGE plpgsql;
+LANGUAGE plpgsql; 
 
 DROP FUNCTION IF EXISTS get_primary_store_id CASCADE;
 CREATE FUNCTION get_primary_store_id(
@@ -105,14 +103,12 @@ CREATE VIEW customers AS
                 (ROW_NUMBER() OVER (ORDER BY customer_average_check DESC))::NUMERIC / 
                     (SELECT COUNT(*) FROM transaction_info_table) AS rank_check,
                 customer_frequency,
-                (ROW_NUMBER() OVER (ORDER BY customer_frequency DESC))::NUMERIC / 
+                (ROW_NUMBER() OVER (ORDER BY customer_frequency))::NUMERIC / 
                     (SELECT COUNT(*) FROM transaction_info_table) AS rank_frequency,
-                COUNT(customer_id) OVER
                 customer_inactive_period,
                 customer_inactive_period / customer_frequency AS customer_churn_rate
             FROM transaction_info_table
-        )
-        SELECT * FROM rank_table
+        ),
 
         stat_segment AS (
             SELECT
@@ -126,8 +122,8 @@ CREATE VIEW customers AS
                     WHEN rank_check <= 0.35 THEN 'Medium'
                     ELSE 'Low' END AS customer_average_check_segment,
                 CASE
-                    WHEN rank_frequency > 0.9 THEN 'Often'
-                    WHEN rank_frequency > 0.65 THEN 'Occasionally'
+                    WHEN rank_frequency <= 0.1 THEN 'Often'
+                    WHEN rank_frequency <= 0.35 THEN 'Occasionally'
                     ELSE 'Rarely' END AS customer_frequency_segment,
                 CASE
                     WHEN customer_churn_rate <= 2 THEN 'Low'
