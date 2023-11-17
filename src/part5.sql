@@ -1,34 +1,10 @@
-\connect "dbname=retail_analytics user=retail_user";
-
--- Get interval between dates
-DROP FUNCTION IF EXISTS get_interval_between_dates CASCADE;
-CREATE OR REPLACE FUNCTION get_interval_between_dates(
-    init_date TIMESTAMPTZ, 
-    stop_date TIMESTAMPTZ
-) RETURNS NUMERIC 
-AS $$
-DECLARE
-    period NUMERIC;
-BEGIN
-    period := (EXTRACT(EPOCH FROM (init_date-stop_date))::DECIMAL / 60 / 60 / 24)::NUMERIC;
-    RETURN period;
-END; $$
-LANGUAGE plpgsql; 
-
-DROP FUNCTION IF EXISTS round_discount CASCADE;
-CREATE OR REPLACE FUNCTION round_discount(discount NUMERIC)
-    RETURNS NUMERIC
-AS $$
-BEGIN
-    RETURN ((FLOOR(discount / 5)) + (discount % 5 != 0)::INT) * 5.0;
-END; $$
-LANGUAGE plpgsql;
+\connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 
 DROP FUNCTION IF EXISTS form_personal_offer_by_customer_frequency CASCADE;
 CREATE FUNCTION form_personal_offer_by_customer_frequency(
     init_date TIMESTAMP, 
     stop_date TIMESTAMP,
-    added_number_of_transactions BIGINT,
+    added_number_of_transactions INT,
     maximum_churn_rate NUMERIC,
     maximum_discount_share NUMERIC,
     allowable_margin_share NUMERIC
@@ -75,23 +51,8 @@ BEGIN
     LEFT JOIN (
         SELECT * FROM allowable_groups WHERE rating = 1 ) g 
         ON c.customer_id = g.customer_id
-    LEFT JOIN sku_groups sku ON g.group_id = sku.group_id );
+    LEFT JOIN sku_group s ON g.group_id = s.group_id );
 END; $$
 LANGUAGE plpgsql;
 
--- SELECT * FROM form_personal_offer_by_customer_frequency('18.08.2022 00:00:00', '18.08.2024 00:00:00', 1);
-SELECT * FROM form_personal_offer_by_customer_frequency('18.08.2022 00:00:00', '18.08.2024 00:00:00', 5, 1000, 90, 1.2);
-
-
-SELECT * from Customers;
-SELECT * from customers;
-
-CALL import_default_dataset_mini();
-
-    SELECT i.customer_id, c.required_check_measure, s.group_name, g.offer_discount_depth
-    FROM personal_information i
-    LEFT JOIN required_average_check c ON i.customer_id = c.customer_id
-    LEFT JOIN (
-        SELECT * FROM allowable_groups WHERE rating = 1 ) g 
-        ON i.customer_id = g.customer_id
-    LEFT JOIN sku_group s ON g.group_id = s.group_id );
+-- SELECT * FROM form_personal_offer_by_customer_frequency('18.08.2022 00:00:00'::TIMESTAMP, '18.08.2024 00:00:00'::TIMESTAMP, 1, 3.0, 70.0, 30.0);
