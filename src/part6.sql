@@ -39,7 +39,6 @@ WITH
             ORDER BY customer_id, group_affinity_index DESC
         ) rg
         WHERE rg.r <= 3
-        LIMIT 20
     ),
     -- Determination of SKU with maximum margin
     --–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
@@ -67,31 +66,50 @@ WITH
             pm.store_id, 
             pm.product_margin DESC
     ),
-    -- SKU share in a group
     --–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-    -- Определяется доля транзакций, в которых присутствует анализируемое SKU. 
-    
+    -- SKU share in a group  
+    --   Определяется доля транзакций, в которых присутствует анализируемое SKU. 
+    --–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
     -- Для этого количество транзакций, содержащих данный SKU, 
     -- делится на количество транзакций, содержащих группу в целом
-    
+
     -- SKU используется для формирования предложения только в том случае,
     -- если получившееся значение не превышает заданного пользователем значения.
     sku_share_in_a_group AS (
         SELECT 
-            *
+            swmm.customer_id,
+            swmm.group_id,
+            swmm.store_id,
+            swmm.sku_id,
+            swmm.max_margin,
+            c.card_id,
+            t.transaction_id
         FROM checks ch
         LEFT JOIN transactions t ON t.transaction_id = ch.transaction_id
         LEFT JOIN cards c ON t.card_id = c.card_id
-        LEFT JOIN sku_with_max_margin swmm ON c.customer_id = swmm.customer_id
+        INNER JOIN sku_with_max_margin swmm 
+            ON c.customer_id = swmm.customer_id
             AND ch.sku_id = swmm.sku_id
-        
-        -- JOIN transactions t
-        -- -- WHERE swmm.customer_id = 16
-        -- LIMIT 100
     )
-
 SELECT * FROM sku_share_in_a_group;
 
+
+--–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+-- CHECKS:                  transaction_id,  sku_id
+-- TRANSACTIONS:            transaction_id,  card_id,  store_id
+-- CARDS:                   card_id,  customer_id
+-- SKU_WITH_MAX_MARGIN:     customer_id,  group_id,  store_id,  sku_id,  max_margin  
+--      ()
+-- 
+-- 
+--–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 SELECT * FROM checks;
 SELECT * FROM transactions;
 SELECT * FROM cards;
+
+-- Для каждого покупателя выбирается n кол-во групп,
+-- для каждой группы выбирается товары с макс. маржой.
+
+-- Узнаем кол-во транзакции для каждого товара каждого покупателя
+-- Узнаем кол-во транзакции для каждой группы каждого покупателя
