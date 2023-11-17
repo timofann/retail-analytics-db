@@ -60,7 +60,7 @@ AS $$
 DECLARE
     _period NUMERIC;
 BEGIN
-    _period := EXTRACT(EPOCH FROM (init_date - stop_date))::NUMERIC / (24 * 60 * 60);
+    _period := EXTRACT(EPOCH FROM (stop_date - init_date))::NUMERIC / (24 * 60 * 60);
     RETURN _period;
 END; $$
 LANGUAGE plpgsql; 
