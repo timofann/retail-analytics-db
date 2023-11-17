@@ -144,4 +144,19 @@ CREATE VIEW groups AS
         GROUP BY customer_id, group_id
     ) grouped_accumulation;
 
--- SELECT * FROM groups;
+-- SELECT * FROM groups ORDER BY customer_id, group_id;
+
+-- UPDATE retail_analitycs_config 
+-- SET setting = 'by transactions count' 
+-- WHERE name = 'groups_margin_calculation_method';
+-- UPDATE retail_analitycs_config 
+-- SET setting = '3' 
+-- WHERE name = 'groups_margin_transactions_count';
+-- SELECT * FROM retail_analitycs_config;
+
+-- UPDATE retail_analitycs_config 
+-- SET setting = 'by period' 
+-- WHERE name = 'groups_margin_calculation_method';
+-- UPDATE retail_analitycs_config 
+-- SET setting = '100' 
+-- WHERE name = 'groups_margin_days_from_analysis_formation';
