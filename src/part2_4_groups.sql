@@ -103,8 +103,8 @@ CREATE VIEW groups AS
                 )::NUMERIC AS discount_transactions_count,
             NULLIF(MAX(group_purchase) FILTER (WHERE row_n = 1), 0) AS group_purchase,
             MAX(group_min_discount) FILTER (WHERE row_n = 1) AS group_min_discount,
-            AVG(group_summ_paid / NULLIF(group_summ, 0)) FILTER (WHERE
-                purchased_group_id = group_id AND group_summ - group_summ_paid != 0)
+            SUM(group_summ_paid) FILTER (WHERE purchased_group_id = group_id) / 
+                NULLIF(SUM(group_summ) FILTER (WHERE purchased_group_id = group_id), 0)
                 AS group_average_discount
         FROM (
             SELECT
