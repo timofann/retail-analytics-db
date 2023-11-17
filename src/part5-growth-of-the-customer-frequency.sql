@@ -1,68 +1,97 @@
 \connect "dbname=retail_analytics user=retail_user";
 
 -- Get interval between dates
-DROP FUNCTION IF EXISTS get_interval_between_dates() CASCADE;
+DROP FUNCTION IF EXISTS get_interval_between_dates CASCADE;
 CREATE OR REPLACE FUNCTION get_interval_between_dates(
-    init_date TIMESTAMP, 
-    stop_date TIMESTAMP
+    init_date TIMESTAMPTZ, 
+    stop_date TIMESTAMPTZ
 ) RETURNS NUMERIC 
 AS $$
 DECLARE
-    date_interval INTERVAL := init_date - stop_date;
+    period NUMERIC;
 BEGIN
-    RETURN ABS(date_part('day', date_interval)
-        + date_part('hour', date_interval)/24
-        + date_part('minute', date_interval)/(24*60)
-        + date_part('second', date_interval)/(24*60*60));
+    period := (EXTRACT(EPOCH FROM (init_date-stop_date))::DECIMAL / 60 / 60 / 24)::NUMERIC;
+    RETURN period;
+END; $$
+LANGUAGE plpgsql; 
+
+DROP FUNCTION IF EXISTS round_discount CASCADE;
+CREATE OR REPLACE FUNCTION round_discount(discount NUMERIC)
+    RETURNS NUMERIC
+AS $$
+BEGIN
+    RETURN ((FLOOR(discount / 5)) + (discount % 5 != 0)::INT) * 5.0;
 END; $$
 LANGUAGE plpgsql;
 
-
-CREATE OR REPLACE FUNCTION form_personal_offer_by_customer_frequency(
-    start_date TIMESTAMP, 
-    end_date TIMESTAMP,
+DROP FUNCTION IF EXISTS form_personal_offer_by_customer_frequency CASCADE;
+CREATE FUNCTION form_personal_offer_by_customer_frequency(
+    init_date TIMESTAMP, 
+    stop_date TIMESTAMP,
     added_number_of_transactions BIGINT,
-    maximum_churn_index NUMERIC,
+    maximum_churn_rate NUMERIC,
     maximum_discount_share NUMERIC,
-    acceptable_margin_share NUMERIC
+    allowable_margin_share NUMERIC
 ) RETURNS TABLE (
-    customer_id INTEGER,
+    customer_id BIGINT,
     start_date TIMESTAMP,
     end_date TIMESTAMP,
-    required_transactions_count NUMERIC,
+    required_transactions_count BIGINT,
     group_name VARCHAR,
     offer_discount_depth NUMERIC
 )
 AS $$
 BEGIN
-    RETURN QUERY
+    RETURN QUERY (
+    WITH
+
+        allowable_groups AS (
+            SELECT
+                g.customer_id,
+                g.group_id,
+                round_discount(g.group_minimum_discount * 100) AS offer_discount_depth,
+                ROW_NUMBER() OVER affinity_window AS rating
+            FROM groups g
+            WHERE
+                group_churn_rate IS NOT NULL AND
+                group_churn_rate < maximum_churn_rate AND
+                group_discount_share < (maximum_discount_share / 100) AND
+                group_margin > (round_discount(group_minimum_discount * 100)) / allowable_margin_share
+            WINDOW 
+                affinity_window AS (
+                    PARTITION BY g.customer_id
+                    ORDER BY g.group_affinity_index DESC, g.group_minimum_discount DESC )
+        )
+
     SELECT
-        customer.customer_id,
-        start_date,
-        end_date,
-        ROUND(get_interval_between_dates(start_date, end_date) / customer.customer_frequency) + added_number_of_transactions,
-        
-
-    
+        c.customer_id AS customer_id,
+        init_date AS start_date,
+        stop_date AS end_date,
+        ROUND(get_interval_between_dates(init_date, stop_date) /
+        c.customer_frequency)::BIGINT + added_number_of_transactions AS required_transactions_count,
+        s.group_name AS group_name,
+        g.offer_discount_depth AS offer_discount_depth
+    FROM customers c
+    LEFT JOIN (
+        SELECT * FROM allowable_groups WHERE rating = 1 ) g 
+        ON c.customer_id = g.customer_id
+    LEFT JOIN sku_groups sku ON g.group_id = sku.group_id );
 END; $$
+LANGUAGE plpgsql;
+
+-- SELECT * FROM form_personal_offer_by_customer_frequency('18.08.2022 00:00:00', '18.08.2024 00:00:00', 1);
+SELECT * FROM form_personal_offer_by_customer_frequency('18.08.2022 00:00:00', '18.08.2024 00:00:00', 5, 1000, 90, 1.2);
 
 
-period = get_interval_between_dates(start_date, end_date);
-
-current_frequensy = period / SELECT customer_frequency FROM VIEW Customers;
-
-
-
-SELECT 
-    ph.customer_id, ph.group_id
-FROM purchase_history ph 
-LEFT JOIN groups g ON ph.customer_id = g.customer_id AND ph.group_id = g.group_id
-LEFT JOIN customers c ON ph.customer_id = c.customer_id
-WHERE
-    group_churn_rate < 600.0 AND
-    group_discount_share < 34 / 100 AND
-    group_margin > (group_minimum_discount / 34 / 100)
-GROUP BY ph.customer_id, ph.group_id
-HAVING group_affinity_index = MAX(group_affinity_index);
+SELECT * from Customers;
+SELECT * from customers;
 
 CALL import_default_dataset_mini();
+
+    SELECT i.customer_id, c.required_check_measure, s.group_name, g.offer_discount_depth
+    FROM personal_information i
+    LEFT JOIN required_average_check c ON i.customer_id = c.customer_id
+    LEFT JOIN (
+        SELECT * FROM allowable_groups WHERE rating = 1 ) g 
+        ON i.customer_id = g.customer_id
+    LEFT JOIN sku_group s ON g.group_id = s.group_id );
