@@ -1,13 +1,5 @@
 \connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 
-CREATE OR REPLACE FUNCTION round_discount(discount NUMERIC)
-    RETURNS NUMERIC
-AS $$
-BEGIN
-    RETURN ((FLOOR(discount / 5)) + (discount % 5 != 0)::INT) * 5.0;
-END; $$
-LANGUAGE plpgsql;
-
 DROP FUNCTION IF EXISTS get_offers_to_increase_the_average_check(
     INT, DATE, DATE, NUMERIC, NUMERIC, NUMERIC, NUMERIC) CASCADE;
 CREATE FUNCTION get_offers_to_increase_the_average_check(

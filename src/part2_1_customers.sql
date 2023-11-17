@@ -1,31 +1,5 @@
 \connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 
-DROP FUNCTION IF EXISTS get_last_analysis_date CASCADE;
-CREATE FUNCTION get_last_analysis_date()
-RETURNS TIMESTAMP
-AS $$ 
-BEGIN
-    RETURN (
-        SELECT max(analysis_formation) 
-        FROM date_of_analysis_formation
-    );
-END; $$
-LANGUAGE plpgsql;
-
-DROP FUNCTION IF EXISTS get_interval_between_dates CASCADE;
-CREATE FUNCTION get_interval_between_dates(
-    init_date TIMESTAMPTZ, 
-    stop_date TIMESTAMPTZ
-) RETURNS NUMERIC 
-AS $$
-DECLARE
-    _period NUMERIC;
-BEGIN
-    _period := EXTRACT(EPOCH FROM (stop_date-init_date))::NUMERIC / (24 * 60 * 60);
-    RETURN _period;
-END; $$
-LANGUAGE plpgsql; 
-
 DROP FUNCTION IF EXISTS get_primary_store_id CASCADE;
 CREATE FUNCTION get_primary_store_id(
     target_customer_id BIGINT

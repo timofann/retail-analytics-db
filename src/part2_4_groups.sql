@@ -1,56 +1,5 @@
 \connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 
-DROP FUNCTION IF EXISTS get_calculation_method CASCADE;
-CREATE FUNCTION get_calculation_method()
-RETURNS VARCHAR
-AS $$
-DECLARE
-    _res VARCHAR := (
-        SELECT setting
-        FROM retail_analitycs_config
-        WHERE name = 'groups_margin_calculation_method' );
-BEGIN
-    IF _res IS NULL THEN
-        RAISE 'retail_analitycs_config.groups_margin_calculation_method should be set up correctly.';
-    END IF;
-    RETURN _res;
-END $$
-LANGUAGE plpgsql;
-
-DROP FUNCTION IF EXISTS get_transactions_count CASCADE;
-CREATE FUNCTION get_transactions_count()
-RETURNS BIGINT
-AS $$
-DECLARE
-    _res BIGINT := (
-        SELECT setting
-        FROM retail_analitycs_config
-        WHERE name = 'groups_margin_transactions_count' );
-BEGIN
-    IF _res IS NULL THEN
-        RAISE 'retail_analitycs_config.groups_margin_transactions_count should be set up correctly.';
-    END IF;
-    RETURN _res;
-END $$
-LANGUAGE plpgsql;
-
-DROP FUNCTION IF EXISTS get_days_from_analysis_formation CASCADE;
-CREATE FUNCTION get_days_from_analysis_formation()
-RETURNS INTERVAL
-AS $$
-DECLARE
-    _res INTERVAL := (
-        SELECT MAKE_INTERVAL(DAYS => setting::INT)
-        FROM retail_analitycs_config
-        WHERE name = 'groups_margin_days_from_analysis_formation' );
-BEGIN
-    IF _res IS NULL THEN
-        RAISE 'retail_analitycs_config.groups_margin_days_from_analysis_formation should be set up correctly.';
-    END IF;
-    RETURN _res;
-END $$
-LANGUAGE plpgsql;
-
 DROP VIEW IF EXISTS groups;
 CREATE VIEW groups AS
     SELECT 
