@@ -198,8 +198,8 @@ CALL export_to_tsv('personal_information');
 -- SELECT SETVAL('transactions_transaction_id_seq', 
 --     (SELECT MAX(transaction_id) FROM transactions));
 
--- CALL import_default_dataset_mini();
-CALL import_default_dataset();
+CALL import_default_dataset_mini();
+-- CALL import_default_dataset();
 -- CALL import_custom_dataset();
 
 -- SELECT * FROM personal_information;
