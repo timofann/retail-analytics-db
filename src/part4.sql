@@ -4,8 +4,8 @@ DROP FUNCTION IF EXISTS get_offers_to_increase_the_average_check(
     INT, DATE, DATE, NUMERIC, NUMERIC, NUMERIC, NUMERIC) CASCADE;
 CREATE FUNCTION get_offers_to_increase_the_average_check(
     calculation_method INT,
-    first_date DATE,
-    last_date DATE,
+    first_date TIMESTAMP,
+    last_date TIMESTAMP,
     increasing_coeff NUMERIC,
     max_churn_index NUMERIC,
     discount_transactions_percentage NUMERIC,
@@ -48,28 +48,33 @@ BEGIN
                     round_discount(g.group_minimum_discount * 100) AS offer_discount_depth,
                     ROW_NUMBER() OVER affinity_window AS rating
                 FROM groups g
+                LEFT JOIN (
+                    SELECT ph.customer_id, ph.group_id, AVG((group_summ_paid - group_cost) / group_cost) AS avg_group_margin
+                    FROM purchase_history ph
+                    GROUP BY ph.customer_id, ph.group_id ) ph
+                    ON ph.customer_id = g.customer_id AND ph.group_id = g.group_id
                 WHERE
                     group_churn_rate <= max_churn_index AND
                     group_churn_rate IS NOT NULL AND
                     group_discount_share < (discount_transactions_percentage / 100) AND
-                    group_margin > (round_discount(group_minimum_discount * 100)) / allowable_margin_percentage
+                    avg_group_margin > (round_discount(group_minimum_discount * 100)) / allowable_margin_percentage
                 WINDOW 
                     affinity_window AS (
                         PARTITION BY g.customer_id
                         ORDER BY g.group_affinity_index DESC, g.group_minimum_discount DESC )
             )
 
-        SELECT i.customer_id, c.required_check_measure, s.group_name, g.offer_discount_depth
-        FROM personal_information i
-        LEFT JOIN required_average_check c ON i.customer_id = c.customer_id
-        LEFT JOIN (
+        SELECT c.customer_id, c.required_check_measure, s.group_name, g.offer_discount_depth
+        FROM required_average_check c
+        JOIN (
             SELECT * FROM allowable_groups WHERE rating = 1 ) g 
-            ON i.customer_id = g.customer_id
-        LEFT JOIN sku_group s ON g.group_id = s.group_id );
+            ON c.customer_id = g.customer_id
+        LEFT JOIN sku_group s ON g.group_id = s.group_id
+        WHERE g.offer_discount_depth != 0 );
 END; $$
 LANGUAGE plpgsql;
 
--- SELECT * FROM get_offers_to_increase_the_average_check(1, '21.12.2021', '21.12.2022', 1.5, 1000, 101, 1.2);
+-- SELECT * FROM get_offers_to_increase_the_average_check(1, '21.12.2020 00:00:00', '21.12.2022 00:00:00', 1.5, 3, 70, 30);
 
 DROP FUNCTION IF EXISTS get_offers_to_increase_the_average_check(
     INT, BIGINT, NUMERIC, NUMERIC, NUMERIC, NUMERIC) CASCADE;
@@ -95,7 +100,7 @@ BEGIN
     END IF;
     RETURN QUERY (
         WITH
-
+        
             rowed_transaction_customer AS (
                 SELECT
                     t.transaction_id,
@@ -107,43 +112,49 @@ BEGIN
                 WINDOW transactions_chronological_windiow AS (
                     PARTITION BY c.customer_id ORDER BY t.transaction_datetime DESC )
             ),
-
+        
             required_average_check AS (
                 SELECT
                     t.customer_id,
-                    SUM(t.transaction_summ) / COUNT(t.transaction_id) * increasing_coeff
+                    (SUM(t.transaction_summ) / COUNT(t.transaction_id)) * increasing_coeff
                         AS required_check_measure
                 FROM rowed_transaction_customer t
                 WHERE t.row_n <= number_of_transactions
                 GROUP BY t.customer_id
             ),
-
+        
             allowable_groups AS (
                 SELECT
                     g.customer_id,
                     g.group_id,
+                    group_churn_rate,
                     round_discount(g.group_minimum_discount * 100) AS offer_discount_depth,
                     ROW_NUMBER() OVER affinity_window AS rating
                 FROM groups g
+                LEFT JOIN (
+                    SELECT ph.customer_id, ph.group_id, AVG((group_summ_paid - group_cost) / group_cost) AS avg_group_margin
+                    FROM purchase_history ph
+                    GROUP BY ph.customer_id, ph.group_id ) ph
+                    ON ph.customer_id = g.customer_id AND ph.group_id = g.group_id
                 WHERE
                     group_churn_rate <= max_churn_index AND
                     group_churn_rate IS NOT NULL AND
                     group_discount_share < (discount_transactions_percentage / 100) AND
-                    group_margin > (round_discount(group_minimum_discount * 100)) / allowable_margin_percentage
+                    avg_group_margin > (round_discount(group_minimum_discount * 100)) / allowable_margin_percentage
                 WINDOW 
                     affinity_window AS (
                         PARTITION BY g.customer_id
                         ORDER BY g.group_affinity_index DESC, g.group_minimum_discount DESC )
             )
-
-        SELECT i.customer_id, c.required_check_measure, s.group_name, g.offer_discount_depth
-        FROM personal_information i
-        LEFT JOIN required_average_check c ON i.customer_id = c.customer_id
-        LEFT JOIN (
-            SELECT * FROM allowable_groups WHERE rating = 1 ) g 
-            ON i.customer_id = g.customer_id
-        LEFT JOIN sku_group s ON g.group_id = s.group_id );
+        
+        SELECT c.customer_id, c.required_check_measure, s.group_name, g.offer_discount_depth
+            FROM required_average_check c
+            JOIN (
+                SELECT * FROM allowable_groups WHERE rating = 1 ) g 
+                ON c.customer_id = g.customer_id
+            LEFT JOIN sku_group s ON g.group_id = s.group_id
+            WHERE g.offer_discount_depth != 0 );
 END; $$
 LANGUAGE plpgsql;
 
--- SELECT * FROM get_offers_to_increase_the_average_check(2, 5, 1.5, 1000, 101, 1.2);
+-- SELECT * FROM get_offers_to_increase_the_average_check(2, 100, 1.15, 3, 70, 30);
