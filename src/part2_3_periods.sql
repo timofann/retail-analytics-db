@@ -42,4 +42,4 @@ CREATE VIEW periods AS
         GROUP BY customer_id, group_id ) rd
     LEFT JOIN transactions_count tc ON tc.customer_id = rd.customer_id AND tc.group_id = rd.group_id;
 
--- SELECT * FROM periods;
+-- SELECT * FROM periods ORDER BY customer_id, group_id;

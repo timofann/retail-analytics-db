@@ -17,4 +17,4 @@ CREATE OR REPLACE VIEW purchase_history AS
     LEFT JOIN stores AS s ON s.sku_id = ch.sku_id AND s.transaction_store_id = t.transaction_store_id
     GROUP BY c.customer_id, t.transaction_id, p.group_id;
 
--- SELECT * FROM purchase_history;
+-- SELECT * FROM purchase_history ORDER BY customer_id, group_id;

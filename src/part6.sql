@@ -15,6 +15,7 @@ CREATE FUNCTION get_personal_offers_aimed_at_cross_selling(
 BEGIN
     RETURN QUERY (
         WITH
+        
             group_selection AS (
                 SELECT
                     g.customer_id,
@@ -96,16 +97,3 @@ END; $$
 LANGUAGE plpgsql;
 
 -- SELECT * FROM get_personal_offers_aimed_at_cross_selling(5, 3, 0.5, 100, 30);
-
-
--- number of groups                         - 5
--- maximum churn index                      - 3
--- maximum consumption stability index      - 0.5
--- maximum SKU share                        - 100
--- allowable margin share                   - 30,
-
--- returns the following data.
---      5   "Kerton Бензин АИ-95 Поездка"        15
---      11  "Heipz GmbH Ручка шариковая Ромашка" 5
-
-

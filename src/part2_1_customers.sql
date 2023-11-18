@@ -132,4 +132,4 @@ CREATE VIEW customers AS
     FROM stat_segment t
     ORDER BY t.customer_id;
 
--- SELECT * FROM customers;
+-- SELECT * FROM customers ORDER BY customer_id;
