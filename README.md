@@ -1,40 +1,6 @@
-# RetailAnalytics v1.0
+# retail-anlytics-db
 
-Retail analytics data upload, its simple analysis, statistics, customer segmentation and creation of personal offers.
-The aim of the project is to create a database with knowledge of retailers' customers, and write the views and procedures needed to create personal offers.
-                                                                                                                                                                                                                            |
-
-#### Groups View
-
-| **Field**                              | **System field name**       | **Format / possible values**     | **Description**                                                                                                                        |
-|:--------------------------------------:|:---------------------------:|:--------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------:|
-| Customer ID                            | Customer_ID                 | ---                              | ---                                                                                                                                 |
-| Group ID                               | Group_ID                    | ---                              | ---                                                                                                                                 |
-| Affinity index                         | Group_Affinity_Index        | Arabic numeral, decimal          | Customer affinity index for this group                                                                                 |
-| Churn index                            | Group_Churn_Rate            | Arabic numeral, decimal          | Customer churn index for a specific group                                                                                          |
-| Stability index                        | Group_Stability_Index       | Arabic numeral, decimal          | Indicator demonstrating the stability of the customer consumption of the group                                                                |
-| Actual margin for the group            | Group_Margin                | Arabic numeral, decimal          | Indicator of the actual margin for the group for a particular customer                                                                       |
-| Share of transactions with a discount  | Group_Discount_Share        | Arabic numeral, decimal          | Share of purchasing transactions of the group by a customer, within which the discount was applied (excluding the loyalty program bonuses) |
-| Minimum size of the discount           | Group_Minimum_Discount      | Arabic numeral, decimal          | Minimum size of the group discount for the customer                                                                    |
-| Average discount                       | Group_Average_Discount      | Arabic numeral, decimal          | Average size of the group discount for the customer                                                                                         |
-
-
-
-
-
-## Part 3. Role model
-
-Create roles in the *part3.sql* script and give them permissions as described below.
-
-#### Administrator
-The administrator has full permissions to edit and view any information, start and stop the processing.
-
-#### Visitor
-Only view information of all tables.
-
-## Part 4. Forming personal offers aimed at the growth of the average check
-
-Create a *part4.sql* script, in which you should add the following function.
+The aim of the project is to create a database with knowledge of retailers' customers, and write the views and procedures needed to create personal offers. It is also necessary to create roles 'administrator' and 'visitor', give them different permissions and write three additional functions described below.
 
 ### Write a function that determines offers that aimed at the growth of the average check
 Function parameters:
@@ -85,10 +51,6 @@ Function output:
 | Maximum discount depth         | Offer_Discount_Depth        | Arabic numeral (decimal), percent          | The maximum possible discount for the offer                                                   |
 
 
-## Part 5. Forming personal offers aimed at increasing the frequency of visits
-
-Create a *part5.sql* script and add the following function to it.
-
 ### Write a function that determines offers aimed at increasing the frequency of visits
 Function parameters:
 - first and last dates of the period
@@ -133,11 +95,6 @@ Function output:
 | Offer group                   | Group_Name                  |                                   | The name of the offer group, to which the reward is accrued when the condition is met. |
 | Maximum discount depth        | Offer_Discount_Depth        | Arabic numeral (decimal), percent | The maximum possible discount for the offer                                        |
 
-
-## Part 6. Forming personal offers aimed at cross-selling
-
-Create a *part6.sql* script and add the following function to it.
-
 ### Write a function that determines offers aimed at cross-selling (margin growth)
 Function parameters:
 - number of groups
@@ -170,11 +127,3 @@ Function output:
 | SKU offers             | SKU_Name              |                                    | The name of the SKU offer, to which the reward is accrued when the condition is met. |
 | Maximum discount depth | Offer_Discount_Depth  | Arabic numeral (decimal), percent  | The maximum possible discount for the offer                                    |
 
-
-## Chapter IV
-
-Chuck had been staring at the screen for hours and couldn't figure it out. A certain "AID" department disappears from the statements as fast as appears, literally in the blink of an eye.
-All expenses are written off for the development of smart vacuum cleaners, something only the household department has been doing for a long time. Yes, there was a new SP-21 model released at the same time, but still what is this: an innocent typo in the name or an opportune moment? The question that will haunt Chuck in the near future...
-
-
-💡 [Tap here](https://forms.yandex.ru/cloud/641820bf5d2a060d5d1b2b40/) **to leave your feedback on the project**. Product Team really tries to make your educational experience better.
