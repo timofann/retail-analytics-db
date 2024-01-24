@@ -1,5 +1,20 @@
 \connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 
+/*  =========================  Groups View  ========================== 
+    - stores customer affinity index for the certain group (
+      Group_Purchase / customer transactions count);
+    - customer churn index for a certain group (days after last 
+      purchase / Group_Frequency); 
+    - the group consumption stability (AVG((ABS(MEAN(purchase 
+      interval) - purchase interval)) / Group_Frequency));
+    - the actual margin for the group for a particular customer by 
+      all transactions / by period / by number of transactions 
+      (depends on data/retail_analitycs_config.tsv) (Group_Cost - 
+      Group_Summ_Paid);
+    - the share of transactions with a discount;
+    - the minimum discount size for a group;
+    - the average group discount size                                 */
+
 DROP VIEW IF EXISTS groups;
 CREATE VIEW groups AS
     SELECT 

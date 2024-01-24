@@ -173,34 +173,7 @@ CALL export_to_tsv('personal_information');
 
 /*                         === DATA IMPORT ===                        */
 
--- CALL truncate_tables();
-
--- CALL import(',', 'personal_information');
--- CALL import(',', 'cards');
--- CALL import(',', 'sku_group');
--- CALL import(',', 'product_grid');
--- CALL import(',', 'unique_stores');
--- CALL import(',', 'stores');
--- CALL import(',', 'transactions');
--- CALL import(',', 'checks');
--- CALL import(',', 'date_of_analysis_formation');
-
--- SELECT setval('personal_information_customer_id_seq', 
---     (SELECT MAX(customer_id) FROM personal_information));
--- SELECT SETVAL('cards_customer_card_id_seq', 
---     (SELECT MAX(card_id) FROM cards));
--- SELECT SETVAL('sku_group_group_id_seq', 
---     (SELECT MAX(group_id) FROM sku_group));
--- SELECT SETVAL('product_grid_sku_id_seq', 
---     (SELECT MAX(sku_id) FROM product_grid));
--- SELECT SETVAL('unique_stores_store_id_seq', 
---     (SELECT MAX(store_id) FROM unique_stores));
--- SELECT SETVAL('transactions_transaction_id_seq', 
---     (SELECT MAX(transaction_id) FROM transactions));
-
-CALL import_default_dataset_mini();
--- CALL import_default_dataset();
--- CALL import_custom_dataset();
+CALL import_custom_dataset();
 
 -- SELECT * FROM personal_information;
 -- SELECT * FROM cards;

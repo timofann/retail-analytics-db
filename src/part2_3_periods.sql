@@ -1,5 +1,15 @@
 \connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 
+/*  =========================  Periods View  ========================= 
+    - stores the ID of the group of related products to which the 
+      product belongs;
+    - the last group purchase by the customer;
+    - the number of transactions with the analyzed group;
+    - the group purchases frequency ((Last_Group_Purchase_Date - 
+      First_Group_Purchase_Date) / Group_Purchase);
+    - the minimum discount for a group. If there is no discount on 
+      all SKUs of the group, the value 0 is specified                  */
+
 DROP VIEW IF EXISTS periods CASCADE;
 CREATE VIEW periods AS
     WITH

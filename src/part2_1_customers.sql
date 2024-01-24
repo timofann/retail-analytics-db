@@ -1,5 +1,51 @@
 \connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 
+/*  ========================  Customers View  ======================== 
+    - stores the average check in rubles for the analyzed period;
+    - High (10% of customers) / Medium (25% of customers) / Low 
+      average check segment;
+    - the customer visit frequency in the average number of days 
+      between transactions;
+    - Often (10% of customers) / Occasionally (25% of customers) / 
+      Rarely transaction frequency segment;
+    - number of days passed since the previous transaction date;
+    - value of the customer churn rate (Customer_Inactive_Period / 
+      Customer_Frequency);
+    - High (> 5) / Medium (2 - 5) / Low (< 2) churn rate segment;
+    - the number of the segment to which the customer belongs:
+
+| **Segment** | **Average check** | **Frequency of purchases** | **Churn probability** |
+|-------------|-------------------|----------------------------|-----------------------|
+| 1           | Low               | Rarely                     | Low                   |
+| 2           | Low               | Rarely                     | Medium                |
+| 3           | Low               | Rarely                     | High                  |
+| 4           | Low               | Occasionally               | Low                   |
+| 5           | Low               | Occasionally               | Medium                |
+| 6           | Low               | Occasionally               | High                  |
+| 7           | Low               | Often                      | Low                   |
+| 8           | Low               | Often                      | Medium                |
+| 9           | Low               | Often                      | High                  |
+| 10          | Medium            | Rarely                     | Low                   |
+| 11          | Medium            | Rarely                     | Medium                |
+| 12          | Medium            | Rarely                     | High                  |
+| 13          | Medium            | Occasionally               | Low                   |
+| 14          | Medium            | Occasionally               | Medium                |
+| 15          | Medium            | Occasionally               | High                  |
+| 16          | Medium            | Often                      | Low                   |
+| 17          | Medium            | Often                      | Medium                |
+| 18          | Medium            | Often                      | High                  |
+| 19          | High              | Rarely                     | Low                   |
+| 20          | High              | Rarely                     | Medium                |
+| 21          | High              | Rarely                     | High                  |
+| 22          | High              | Occasionally               | Low                   |
+| 23          | High              | Occasionally               | Medium                |
+| 24          | High              | Occasionally               | High                  |
+| 25          | High              | Often                      | Low                   |
+| 26          | High              | Often                      | Medium                |
+| 27          | High              | Often                      | High                  |
+
+*/
+
 DROP FUNCTION IF EXISTS get_primary_store_id CASCADE;
 CREATE FUNCTION get_primary_store_id(
     target_customer_id BIGINT

@@ -1,5 +1,13 @@
 \connect -reuse-previous=on "dbname=retail_analytics user=retail_user";
 
+/*  =====================  Purchase History View  ===================== 
+    - stores the date when the transaction was made;
+    - the ID of the group of related products to which the product 
+      belongs;
+    - group cost (SUM(SKU_Purchase_Price * SKU_Amount) by group);
+    - group summ (SUM(SKU_Summ) by group);
+    - group summ paid (SUM(SKU_Summ_Paid) by group)                    */
+
 DROP VIEW IF EXISTS purchase_history;
 CREATE OR REPLACE VIEW purchase_history AS
     SELECT 

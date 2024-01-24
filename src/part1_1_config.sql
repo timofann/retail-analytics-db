@@ -24,7 +24,7 @@ CREATE TABLE retail_analitycs_config (
 
 -- ───────────────────────────────────────────────────────────────── enter the path there ─┐
 INSERT INTO retail_analitycs_config VALUES (                                             --│
-    1, 'data_path', '/Volumes/PortableSSD/School21_Projects/SQL2/src/data',              --│
+    1, 'data_path', '***current_project_directory**/src/data',                           --│
     'Absolute path to directory which is used for import and export data' );             --│
 -- ────────────────────────────────────────────────────────────────────────────────────────┘
 
@@ -210,42 +210,6 @@ BEGIN
         (SELECT MAX(store_id) FROM unique_stores));
     PERFORM SETVAL('transactions_transaction_id_seq', 
         (SELECT MAX(transaction_id) FROM transactions));
-END $$
-LANGUAGE plpgsql;
-
-DROP PROCEDURE IF EXISTS import_default_dataset CASCADE;
-CREATE PROCEDURE import_default_dataset(
-) AS $$
-BEGIN
-    CALL truncate_tables();
-    CALL import(E'\t', 'personal_information', '../../datasets/Personal_Data.tsv');
-    CALL import(E'\t', 'cards', '../../datasets/Cards.tsv');
-    CALL import(E'\t', 'sku_group', '../../datasets/Groups_SKU.tsv');
-    CALL import(E'\t', 'product_grid', '../../datasets/SKU.tsv');
-    CALL import(E'\t', 'unique_stores', '../../datasets/Unique_Stores.tsv');
-    CALL import(E'\t', 'stores', '../../datasets/Stores.tsv');
-    CALL import(E'\t', 'transactions', '../../datasets/Transactions.tsv');
-    CALL import(E'\t', 'checks', '../../datasets/Checks.tsv');
-    CALL import(E'\t', 'date_of_analysis_formation', '../../datasets/Date_Of_Analysis_Formation.tsv');
-    CALL setval_for_tables_sequences();
-END $$
-LANGUAGE plpgsql;
-
-DROP PROCEDURE IF EXISTS import_default_dataset_mini CASCADE;
-CREATE PROCEDURE import_default_dataset_mini(
-) AS $$
-BEGIN
-    CALL truncate_tables();
-    CALL import(E'\t', 'personal_information', '../../datasets/Personal_Data_Mini.tsv');
-    CALL import(E'\t', 'cards', '../../datasets/Cards_Mini.tsv');
-    CALL import(E'\t', 'sku_group', '../../datasets/Groups_SKU_Mini.tsv');
-    CALL import(E'\t', 'product_grid', '../../datasets/SKU_Mini.tsv');
-    CALL import(E'\t', 'unique_stores', '../../datasets/Unique_Stores.tsv');
-    CALL import(E'\t', 'stores', '../../datasets/Stores_Mini.tsv');
-    CALL import(E'\t', 'transactions', '../../datasets/Transactions_Mini.tsv');
-    CALL import(E'\t', 'checks', '../../datasets/Checks_Mini.tsv');
-    CALL import(E'\t', 'date_of_analysis_formation', '../../datasets/Date_Of_Analysis_Formation.tsv');
-    CALL setval_for_tables_sequences();
 END $$
 LANGUAGE plpgsql;
 
