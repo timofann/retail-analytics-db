@@ -1,0 +1,3 @@
+2	groups_margin_calculation_method	by all transactions	Three options are available: "by period" or "by transactions count" or "by all transactions" (default)
+3	groups_margin_transactions_count	5	If the option "groups_margin_calculation_method" is set to "by transactions count"
+4	groups_margin_days_from_analysis_formation	365	If the option "groups_margin_calculation_method" is set to "by period"
